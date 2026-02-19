@@ -14,3 +14,22 @@ dependencies = [
 [build-system]
 requires = ["uv_build>=0.10.4,<0.11.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.1",
+]
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ['migrations']
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'FAST']
+
+[tool.ruff.lint.per-file-ignores]
+"test_*.py" = ["PLR2004"]
+
+[tool.ruff.format]
+preview = true
