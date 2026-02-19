@@ -1,16 +1,26 @@
 # Backend
 
-## Run the server
+## Setup
 
 From this folder:
 
 ```bash
 uv sync
-uv run fastapi dev src/backend/app.py
 ```
 
-Production-style run:
+## Task commands
 
-```bash
-uv run fastapi run src/backend/app.py
-```
+- Run the local API server:
+	```bash
+	uv run task run
+	```
+
+- Auto-fix lint issues and format code:
+	```bash
+	uv run task format
+	```
+
+- Run lint checks, run tests and generate coverage:
+	```bash
+	uv run task test
+	```

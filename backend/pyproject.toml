@@ -20,6 +20,7 @@ dev = [
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "ruff>=0.15.1",
+    "taskipy>=1.14.1",
 ]
 
 [tool.ruff]
@@ -35,3 +36,11 @@ select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'FAST']
 
 [tool.ruff.format]
 preview = true
+
+[tool.taskipy.tasks]
+pre_format = "ruff check --fix"
+format = "ruff format"
+run = "fastapi dev src/backend/app.py"
+pre_test = "ruff check"
+test = "pytest -s -x --cov=src -vv"
+post_test = "coverage html"
