@@ -10,5 +10,9 @@ venv/
 .pytest_cache/
 .mypy_cache/
 
+# Coverage reports
+.coverage
+htmlcov/
+
 # TODO file
 TODO.md
