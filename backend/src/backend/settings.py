@@ -6,7 +6,7 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8"
     )
 
-    ALLOWED_ORIGINS: list[str]
+    ALLOWED_ORIGINS: str
 
 
 settings = Settings()  # type: ignore
