@@ -1,15 +1,15 @@
-name: Backend Format & Lint
+name: Backend Quality
 
 on:
   pull_request:
     paths:
       - "backend/**"
-      - ".github/workflows/backend-format.yml"
+      - ".github/workflows/backend-quality.yml"
   push:
     branches: [main]
     paths:
       - "backend/**"
-      - ".github/workflows/backend-format.yml"
+      - ".github/workflows/backend-quality.yml"
 
 jobs:
   quality:
