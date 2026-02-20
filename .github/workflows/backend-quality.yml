@@ -41,6 +41,8 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     needs: quality
+    env:
+      ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
     defaults:
       run:
         working-directory: backend
