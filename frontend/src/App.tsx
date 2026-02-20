@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import './App.css'
 
-const API_URL = 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 type ApiStatus = 'loading' | 'ok' | 'error'
 
@@ -15,8 +15,8 @@ function App() {
 
     const checkApi = async () => {
       try {
-        const api_health_url = `${API_URL}/health`
-        const response = await fetch(api_health_url)
+        const apiHealthUrl = `${API_BASE_URL.replace(/\/$/, '')}/health`
+        const response = await fetch(apiHealthUrl)
         if (!response.ok) {
           throw new Error('API request failed')
         }
