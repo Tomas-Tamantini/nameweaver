@@ -8,7 +8,7 @@ describe('App', () => {
     render(<App />)
 
     expect(
-      screen.getByRole('heading', { name: /hello, world!/i }),
+      screen.getByRole('heading', { name: /nameweaver/i }),
     ).toBeInTheDocument()
   })
 })
