@@ -12,6 +12,7 @@ venv/
 
 # Coverage reports
 .coverage
+coverage/
 htmlcov/
 
 # TODO file
