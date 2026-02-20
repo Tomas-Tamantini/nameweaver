@@ -10,14 +10,6 @@ venv/
 .pytest_cache/
 .mypy_cache/
 
-# Coverage reports
-.coverage
-coverage/
-htmlcov/
-
-# TODO file
-TODO.md
-
 # Node / frontend
 node_modules/
 dist/
@@ -33,3 +25,17 @@ lerna-debug.log*
 # OS / editor
 .DS_Store
 .idea/
+
+# Environment variables
+.env
+.env.local
+
+# Coverage reports
+.coverage
+coverage/
+htmlcov/
+
+# TODO file
+TODO.md
+
+

@@ -8,6 +8,10 @@ From this folder:
 uv sync
 ```
 
+## Environment variables
+
+Copy `.env.example` to `.env` and adjust values as needed.
+
 ## Task commands
 
 - Run the local API server:
