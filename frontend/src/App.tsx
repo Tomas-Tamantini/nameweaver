@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 
-import './App.css'
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 type ApiStatus = 'loading' | 'ok' | 'error'
+
+const statusClasses: Record<ApiStatus, string> = {
+  loading: 'text-slate-600',
+  ok: 'text-green-700',
+  error: 'text-red-700',
+}
 
 function App() {
   const [apiStatus, setApiStatus] = useState<ApiStatus>('loading')
@@ -43,12 +47,14 @@ function App() {
   }, [])
 
   return (
-    <main className="app">
-      <h1>Nameweaver</h1>
-      <p>
-        API status:{' '}
-        <strong className={`status status-${apiStatus}`}>{apiMessage}</strong>
-      </p>
+    <main className="min-h-screen grid place-items-center">
+      <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <h1 className="text-2xl font-semibold text-slate-900">Nameweaver</h1>
+        <p className="mt-3 text-slate-700">
+          API status:{' '}
+          <strong className={statusClasses[apiStatus]}>{apiMessage}</strong>
+        </p>
+      </section>
     </main>
   )
 }
