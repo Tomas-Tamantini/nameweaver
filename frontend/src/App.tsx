@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -54,6 +55,9 @@ function App() {
           API status:{' '}
           <strong className={statusClasses[apiStatus]}>{apiMessage}</strong>
         </p>
+        <div className="flex min-h-svh flex-col items-center justify-center">
+          <Button>Click me</Button>
+        </div>
       </section>
     </main>
   )
