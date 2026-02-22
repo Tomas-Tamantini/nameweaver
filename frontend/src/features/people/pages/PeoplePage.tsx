@@ -1,29 +1,62 @@
+import { useCallback, useEffect, useState } from 'react'
+
 import PeopleList from '@/features/people/components/PeopleList'
+import { getPeople } from '@/features/people/services/people-service'
 
 import type { PeopleListState } from '@/features/people/models/people-list-state'
 
-const demoPeopleState: PeopleListState = {
-  status: 'success',
-  people: [
-    {
-      id: 1,
-      name: 'Ada Lovelace',
-      shortDescription: 'Met at a conference.',
-      createdAt: '2026-02-21T18:00:00.000Z',
-      updatedAt: '2026-02-21T18:00:00.000Z',
-    },
-    {
-      id: 2,
-      name: 'Alan Turing',
-      shortDescription: 'Discussed algorithms.',
-      createdAt: '2026-02-21T18:30:00.000Z',
-      updatedAt: '2026-02-21T18:30:00.000Z',
-    },
-  ],
+function toPeopleListState(
+  people: Awaited<ReturnType<typeof getPeople>>,
+): PeopleListState {
+  if (people.length === 0) {
+    return { status: 'empty' }
+  }
+
+  return {
+    status: 'success',
+    people,
+  }
 }
 
 function PeoplePage() {
-  return <PeopleList state={demoPeopleState} />
+  const [state, setState] = useState<PeopleListState>({ status: 'loading' })
+
+  useEffect(() => {
+    let isActive = true
+
+    void getPeople()
+      .then((people) => {
+        if (!isActive) {
+          return
+        }
+
+        setState(toPeopleListState(people))
+      })
+      .catch(() => {
+        if (!isActive) {
+          return
+        }
+
+        setState({ status: 'error', message: 'Could not fetch people.' })
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [])
+
+  const loadPeople = useCallback(async () => {
+    setState({ status: 'loading' })
+
+    try {
+      const people = await getPeople()
+      setState(toPeopleListState(people))
+    } catch {
+      setState({ status: 'error', message: 'Could not fetch people.' })
+    }
+  }, [])
+
+  return <PeopleList state={state} onRetry={loadPeople} />
 }
 
 export default PeoplePage
