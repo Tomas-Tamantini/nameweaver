@@ -35,6 +35,9 @@ function wait(milliseconds: number) {
 }
 
 export async function getPeople(query: GetPeopleQuery = {}) {
+  // TODO: Replace with real API call
+  // TODO: Remove console.log
+  console.log('Fetching people with query:', query)
   await wait(150)
 
   const searchText = query.q?.trim().toLowerCase()
