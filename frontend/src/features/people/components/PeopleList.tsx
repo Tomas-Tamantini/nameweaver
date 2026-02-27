@@ -67,18 +67,16 @@ function PeopleList({ state, onRetry }: PeopleListProps) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-2xl p-6" aria-live="polite">
-      <div className="space-y-3">
-        {state.people.map((person) => (
-          <Card key={person.id}>
-            <CardHeader>
-              <CardTitle>{person.name}</CardTitle>
-              <CardDescription>{person.shortDescription}</CardDescription>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-    </section>
+    <div className="space-y-3">
+      {state.people.map((person) => (
+        <Card key={person.id}>
+          <CardHeader>
+            <CardTitle>{person.name}</CardTitle>
+            <CardDescription>{person.shortDescription}</CardDescription>
+          </CardHeader>
+        </Card>
+      ))}
+    </div>
   )
 }
 

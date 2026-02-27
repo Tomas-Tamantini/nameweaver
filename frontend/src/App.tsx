@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="min-h-screen bg-muted/30 text-foreground">
       <AppHeader />
-      <main>
+      <main className="mx-auto w-full max-w-2xl px-4 py-6">
         <AppRoutes />
       </main>
     </div>

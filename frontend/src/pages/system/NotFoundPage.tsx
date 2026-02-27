@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 
 function NotFoundPage() {
   return (
-    <section className="mx-auto w-full max-w-2xl p-6" aria-live="polite">
+    <section aria-live="polite">
       <Card>
         <CardHeader>
           <CardTitle>Page not found</CardTitle>
