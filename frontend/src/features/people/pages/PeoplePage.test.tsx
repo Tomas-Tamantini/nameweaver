@@ -42,6 +42,9 @@ describe('PeoplePage', () => {
 
     render(<PeoplePage />)
 
+    expect(
+      screen.getByRole('searchbox', { name: 'Search people' }),
+    ).toBeInTheDocument()
     expect(screen.getByText('Loading people...')).toBeInTheDocument()
     expect(await screen.findByText('Ada Lovelace')).toBeInTheDocument()
     expect(mockedGetPeople).toHaveBeenCalledTimes(1)

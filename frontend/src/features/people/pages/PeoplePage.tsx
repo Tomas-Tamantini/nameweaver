@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import PeopleList from '@/features/people/components/PeopleList'
+import PeopleToolbar from '@/features/people/components/PeopleToolbar'
 import { getPeople } from '@/features/people/services/people-service'
 
 import type { PeopleListState } from '@/features/people/models/people-list-state'
@@ -56,7 +57,12 @@ function PeoplePage() {
     }
   }, [])
 
-  return <PeopleList state={state} onRetry={loadPeople} />
+  return (
+    <>
+      <PeopleToolbar />
+      <PeopleList state={state} onRetry={loadPeople} />
+    </>
+  )
 }
 
 export default PeoplePage
