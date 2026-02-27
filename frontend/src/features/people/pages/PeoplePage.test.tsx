@@ -1,17 +1,17 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import usePeopleSearch from '@/features/people/hooks/use-people-search'
 import PeoplePage from './PeoplePage'
 
+import type { PeopleListState } from '@/features/people/models/people-list-state'
 import type { Person } from '@/features/people/models/person'
 
-vi.mock('@/features/people/services/people-service', () => ({
-  getPeople: vi.fn(),
+vi.mock('@/features/people/hooks/use-people-search', () => ({
+  default: vi.fn(),
 }))
 
-import { getPeople } from '@/features/people/services/people-service'
-
-const mockedGetPeople = vi.mocked(getPeople)
+const mockedUsePeopleSearch = vi.mocked(usePeopleSearch)
 
 const ADA: Person = {
   id: 1,
@@ -29,42 +29,75 @@ const ALAN: Person = {
   updatedAt: '2026-02-21T18:30:00.000Z',
 }
 
+function buildHookResult(
+  overrides: {
+    query?: string
+    state?: PeopleListState
+    onQueryChange?: (nextQuery: string) => void
+    reloadPeople?: () => Promise<void>
+  } = {},
+) {
+  return {
+    query: overrides.query ?? '',
+    state: overrides.state ?? { status: 'loading' },
+    onQueryChange: overrides.onQueryChange ?? vi.fn(),
+    reloadPeople: overrides.reloadPeople ?? vi.fn(async () => {}),
+  }
+}
+
 afterEach(() => {
-  mockedGetPeople.mockReset()
+  mockedUsePeopleSearch.mockReset()
   cleanup()
 })
 
 describe('PeoplePage', () => {
-  it('loads and renders people from the service', async () => {
-    const people: Person[] = [ADA]
-
-    mockedGetPeople.mockResolvedValue(people)
+  it('renders search and list content from the hook state', () => {
+    mockedUsePeopleSearch.mockReturnValue(
+      buildHookResult({ state: { status: 'success', people: [ADA] } }),
+    )
 
     render(<PeoplePage />)
 
     expect(
       screen.getByRole('searchbox', { name: 'Search people' }),
     ).toBeInTheDocument()
-    expect(screen.getByText('Loading people...')).toBeInTheDocument()
-    expect(await screen.findByText('Ada Lovelace')).toBeInTheDocument()
-    expect(mockedGetPeople).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
   })
 
-  it('shows an error and retries successfully', async () => {
-    const people: Person[] = [ALAN]
-
-    mockedGetPeople.mockRejectedValueOnce(new Error('Network error'))
-    mockedGetPeople.mockResolvedValueOnce(people)
+  it('wires retry button to reloadPeople', () => {
+    const reloadPeople = vi.fn(async () => {})
+    mockedUsePeopleSearch.mockReturnValue(
+      buildHookResult({
+        state: { status: 'error', message: 'Could not fetch people.' },
+        reloadPeople,
+      }),
+    )
 
     render(<PeoplePage />)
 
-    expect(
-      await screen.findByText('Could not fetch people.'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Could not fetch people.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
 
-    expect(await screen.findByText('Alan Turing')).toBeInTheDocument()
-    expect(mockedGetPeople).toHaveBeenCalledTimes(2)
+    expect(reloadPeople).toHaveBeenCalledTimes(1)
+  })
+
+  it('wires search input changes to onQueryChange', () => {
+    const onQueryChange = vi.fn()
+    mockedUsePeopleSearch.mockReturnValue(
+      buildHookResult({
+        query: '',
+        state: { status: 'success', people: [ALAN] },
+        onQueryChange,
+      }),
+    )
+
+    render(<PeoplePage />)
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search people' }), {
+      target: { value: 'Ada' },
+    })
+
+    expect(onQueryChange).toHaveBeenCalledWith('Ada')
   })
 })
