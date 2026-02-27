@@ -1,10 +1,4 @@
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 
 import {
   Empty,
@@ -14,9 +8,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
-import { Skeleton } from '@/components/ui/skeleton'
 import { BugIcon } from 'lucide-react'
 import type { PeopleListState } from '../models/people-list-state'
+import PersonCard from './PersonCard'
+import PersonCardSkeleton from './PersonCardSkeleton'
 
 type PeopleListProps = {
   state: PeopleListState
@@ -26,13 +21,11 @@ type PeopleListProps = {
 function PeopleList({ state, onRetry }: PeopleListProps) {
   if (state.status === 'loading') {
     return (
-      <Card className="w-full max-w-xs">
-        <CardHeader>
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <Skeleton className="h-4 w-2/3" />
-          <Skeleton className="h-4 w-1/2" />
-        </CardHeader>
-      </Card>
+      <div className="space-y-3">
+        {Array.from({ length: 3 }, (_, index) => (
+          <PersonCardSkeleton key={index} showLoadingLabel={index === 0} />
+        ))}
+      </div>
     )
   }
 
@@ -46,11 +39,13 @@ function PeopleList({ state, onRetry }: PeopleListProps) {
           <EmptyTitle>Uh oh...</EmptyTitle>
           <EmptyDescription>{state.message}</EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-          <Button variant="outline" onClick={onRetry}>
-            Retry
-          </Button>
-        </EmptyContent>
+        {onRetry ? (
+          <EmptyContent>
+            <Button variant="outline" onClick={onRetry}>
+              Retry
+            </Button>
+          </EmptyContent>
+        ) : null}
       </Empty>
     )
   }
@@ -69,12 +64,7 @@ function PeopleList({ state, onRetry }: PeopleListProps) {
   return (
     <div className="space-y-3">
       {state.people.map((person) => (
-        <Card key={person.id}>
-          <CardHeader>
-            <CardTitle>{person.name}</CardTitle>
-            <CardDescription>{person.shortDescription}</CardDescription>
-          </CardHeader>
-        </Card>
+        <PersonCard key={person.id} person={person} />
       ))}
     </div>
   )

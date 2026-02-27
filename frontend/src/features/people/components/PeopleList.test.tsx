@@ -12,6 +12,7 @@ describe('PeopleList', () => {
     render(<PeopleList state={{ status: 'loading' }} />)
 
     expect(screen.getByText('Loading people...')).toBeInTheDocument()
+    expect(document.querySelectorAll('[data-slot="card"]').length).toBe(3)
   })
 
   it('renders error state and retry button when callback is provided', () => {
@@ -45,7 +46,7 @@ describe('PeopleList', () => {
   it('renders empty state', () => {
     render(<PeopleList state={{ status: 'empty' }} />)
 
-    expect(screen.getByText('No people yet.')).toBeInTheDocument()
+    expect(screen.getByText("There's no one here...")).toBeInTheDocument()
   })
 
   it('renders people in success state', () => {

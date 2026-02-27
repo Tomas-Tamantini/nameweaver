@@ -58,10 +58,10 @@ function PeoplePage() {
   }, [])
 
   return (
-    <>
+    <section className="space-y-4" aria-label="People page">
       <PeopleToolbar />
       <PeopleList state={state} onRetry={loadPeople} />
-    </>
+    </section>
   )
 }
 

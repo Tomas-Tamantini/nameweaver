@@ -7,6 +7,7 @@ function PeopleToolbar() {
         type="search"
         placeholder="Search people by name or note"
         aria-label="Search people"
+        className="h-12"
       />
     </section>
   )
