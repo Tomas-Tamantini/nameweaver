@@ -1,4 +1,4 @@
-import type { Person } from '../models/person'
+import type { CreatePersonRequest, Person } from '../models/person'
 
 export type GetPeopleQuery = {
   q?: string
@@ -52,4 +52,27 @@ export async function getPeople(query: GetPeopleQuery = {}) {
 
     return name.includes(searchText) || description.includes(searchText)
   })
+}
+
+export async function createPerson(input: CreatePersonRequest) {
+  // TODO: Replace with real API call
+  await wait(150)
+
+  const now = new Date().toISOString()
+  const nextId =
+    MOCK_PEOPLE.length > 0
+      ? Math.max(...MOCK_PEOPLE.map((person) => person.id)) + 1
+      : 1
+
+  const newPerson: Person = {
+    id: nextId,
+    name: input.name.trim(),
+    shortDescription: input.shortDescription.trim(),
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  MOCK_PEOPLE.push(newPerson)
+
+  return { ...newPerson }
 }
