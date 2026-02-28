@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.api.routes import all_routers
 from backend.settings import settings
 
 app = FastAPI()
@@ -15,6 +16,5 @@ app.add_middleware(
 )
 
 
-@app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+for router in all_routers:
+    app.include_router(router)
