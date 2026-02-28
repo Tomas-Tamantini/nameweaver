@@ -25,4 +25,16 @@ describe('AppRoutes', () => {
 
     expect(screen.getByTestId('current-path')).toHaveTextContent('/people')
   })
+
+  it('renders add person page for /people/new', () => {
+    render(
+      <MemoryRouter initialEntries={['/people/new']}>
+        <AppRoutes />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByRole('heading', { name: 'Add person' }),
+    ).toBeInTheDocument()
+  })
 })

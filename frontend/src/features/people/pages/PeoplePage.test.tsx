@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import usePeopleSearch from '@/features/people/hooks/use-people-search'
@@ -56,11 +57,19 @@ describe('PeoplePage', () => {
       buildHookResult({ state: { status: 'success', people: [ADA] } }),
     )
 
-    render(<PeoplePage />)
+    render(
+      <MemoryRouter>
+        <PeoplePage />
+      </MemoryRouter>,
+    )
 
     expect(
       screen.getByRole('searchbox', { name: 'Search people' }),
     ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Add person' })).toHaveAttribute(
+      'href',
+      '/people/new',
+    )
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
   })
 
@@ -73,7 +82,11 @@ describe('PeoplePage', () => {
       }),
     )
 
-    render(<PeoplePage />)
+    render(
+      <MemoryRouter>
+        <PeoplePage />
+      </MemoryRouter>,
+    )
 
     expect(screen.getByText('Could not fetch people.')).toBeInTheDocument()
 
@@ -92,7 +105,11 @@ describe('PeoplePage', () => {
       }),
     )
 
-    render(<PeoplePage />)
+    render(
+      <MemoryRouter>
+        <PeoplePage />
+      </MemoryRouter>,
+    )
 
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search people' }), {
       target: { value: 'Ada' },
