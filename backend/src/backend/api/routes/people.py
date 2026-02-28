@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Query
@@ -5,7 +6,11 @@ from fastapi import APIRouter, Query
 from backend.api.schemas.pagination import (
     PaginatedResponse,
 )
-from backend.api.schemas.people import GetPeopleQueryParams, PersonResponse
+from backend.api.schemas.people import (
+    CreatePersonRequest,
+    GetPeopleQueryParams,
+    PersonResponse,
+)
 
 people_router = APIRouter(prefix="/people", tags=["people"])
 
@@ -41,6 +46,18 @@ _fake_people_db = [
         "best known as the inventor of the World Wide Web.",
     },
 ]
+
+
+@people_router.post("/", status_code=HTTPStatus.CREATED)
+def create_person(body: CreatePersonRequest) -> PersonResponse:
+    new_id = max(person["id"] for person in _fake_people_db) + 1
+    new_person = {
+        "id": new_id,
+        "name": body.name,
+        "description": body.description,
+    }
+    _fake_people_db.append(new_person)
+    return PersonResponse(**new_person)
 
 
 @people_router.get("/")
