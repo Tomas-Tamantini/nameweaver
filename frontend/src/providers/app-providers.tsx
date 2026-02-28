@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/providers/theme'
 
 type AppProvidersProps = {
@@ -5,5 +6,10 @@ type AppProvidersProps = {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  return <ThemeProvider>{children}</ThemeProvider>
+  return (
+    <ThemeProvider>
+      {children}
+      <Toaster />
+    </ThemeProvider>
+  )
 }
