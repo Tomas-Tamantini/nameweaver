@@ -23,6 +23,12 @@ npm install
   ```
 
 - Preview the production build locally:
+
   ```bash
   npm run preview
+  ```
+
+- Check linting, formatting and tests:
+  ```bash
+  npm run check
   ```
