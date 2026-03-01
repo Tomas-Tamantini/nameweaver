@@ -3,10 +3,10 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import usePeopleSearch from '@/features/people/hooks/use-people-search'
+import { buildPerson } from '@/test/factories/person'
 import PeoplePage from './PeoplePage'
 
 import type { PeopleListState } from '@/features/people/models/people-list-state'
-import type { Person } from '@/features/people/models/person'
 
 vi.mock('@/features/people/hooks/use-people-search', () => ({
   default: vi.fn(),
@@ -14,17 +14,8 @@ vi.mock('@/features/people/hooks/use-people-search', () => ({
 
 const mockedUsePeopleSearch = vi.mocked(usePeopleSearch)
 
-const ADA: Person = {
-  id: 1,
-  name: 'Ada Lovelace',
-  description: 'Met at a conference.',
-}
-
-const ALAN: Person = {
-  id: 2,
-  name: 'Alan Turing',
-  description: 'Discussed algorithms.',
-}
+const ADA = buildPerson()
+const ALAN = buildPerson()
 
 function buildHookResult(
   overrides: {
@@ -68,7 +59,7 @@ describe('PeoplePage', () => {
       'href',
       '/people/new',
     )
-    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
+    expect(screen.getByText(ADA.name)).toBeInTheDocument()
   })
 
   it('wires retry button to reloadPeople', () => {

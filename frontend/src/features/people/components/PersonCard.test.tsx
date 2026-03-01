@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
+import { buildPerson } from '@/test/factories/person'
 import PersonCard from './PersonCard'
 
 afterEach(() => {
@@ -9,17 +10,11 @@ afterEach(() => {
 
 describe('PersonCard', () => {
   it('renders person name and short description', () => {
-    render(
-      <PersonCard
-        person={{
-          id: 1,
-          name: 'Ada Lovelace',
-          description: 'Met at a conference.',
-        }}
-      />,
-    )
+    const person = buildPerson()
 
-    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
-    expect(screen.getByText('Met at a conference.')).toBeInTheDocument()
+    render(<PersonCard person={person} />)
+
+    expect(screen.getByText(person.name)).toBeInTheDocument()
+    expect(screen.getByText(person.description)).toBeInTheDocument()
   })
 })

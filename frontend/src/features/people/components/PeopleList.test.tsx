@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { buildPerson } from '@/test/factories/person'
 import PeopleList from './PeopleList'
 
 afterEach(() => {
@@ -50,31 +51,23 @@ describe('PeopleList', () => {
   })
 
   it('renders people in success state', () => {
+    const personA = buildPerson()
+    const personB = buildPerson()
+
     render(
       <PeopleList
         state={{
           status: 'success',
           total: 2,
-          people: [
-            {
-              id: 1,
-              name: 'Ada Lovelace',
-              description: 'Met at a conference.',
-            },
-            {
-              id: 2,
-              name: 'Alan Turing',
-              description: 'Discussed algorithms.',
-            },
-          ],
+          people: [personA, personB],
         }}
       />,
     )
 
-    expect(screen.getByText('Ada Lovelace')).toBeInTheDocument()
-    expect(screen.getByText('Met at a conference.')).toBeInTheDocument()
-    expect(screen.getByText('Alan Turing')).toBeInTheDocument()
-    expect(screen.getByText('Discussed algorithms.')).toBeInTheDocument()
+    expect(screen.getByText(personA.name)).toBeInTheDocument()
+    expect(screen.getByText(personA.description)).toBeInTheDocument()
+    expect(screen.getByText(personB.name)).toBeInTheDocument()
+    expect(screen.getByText(personB.description)).toBeInTheDocument()
     expect(screen.queryByText(/updated at:/i)).not.toBeInTheDocument()
   })
 })

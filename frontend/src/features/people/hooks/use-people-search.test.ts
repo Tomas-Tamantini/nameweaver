@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { buildPerson } from '@/test/factories/person'
 import usePeopleSearch from './use-people-search'
 
 import type { Person } from '@/features/people/models/person'
@@ -13,17 +14,8 @@ import { getPeople } from '@/features/people/services/people-service'
 
 const mockedGetPeople = vi.mocked(getPeople)
 
-const ADA: Person = {
-  id: 1,
-  name: 'Ada Lovelace',
-  description: 'Met at a conference.',
-}
-
-const ALAN: Person = {
-  id: 2,
-  name: 'Alan Turing',
-  description: 'Discussed algorithms.',
-}
+const ADA = buildPerson()
+const ALAN = buildPerson()
 
 function createDeferred<T>() {
   let resolvePromise: (value: T | PromiseLike<T>) => void = () => {}

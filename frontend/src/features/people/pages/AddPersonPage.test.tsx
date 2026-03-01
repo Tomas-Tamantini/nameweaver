@@ -9,6 +9,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createPerson } from '@/features/people/services/people-service'
+import { buildPerson } from '@/test/factories/person'
 import { toast } from 'sonner'
 import AddPersonPage from './AddPersonPage'
 
@@ -85,11 +86,7 @@ describe('AddPersonPage', () => {
   })
 
   it('submits valid values, shows success toast, and navigates to people page', async () => {
-    mockedCreatePerson.mockResolvedValue({
-      id: 99,
-      name: 'Ada Lovelace',
-      description: 'Met at a conference.',
-    })
+    mockedCreatePerson.mockResolvedValue(buildPerson({ id: 99 }))
 
     renderAddPersonPage()
 
