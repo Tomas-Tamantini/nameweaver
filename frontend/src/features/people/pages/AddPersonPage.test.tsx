@@ -88,9 +88,7 @@ describe('AddPersonPage', () => {
     mockedCreatePerson.mockResolvedValue({
       id: 99,
       name: 'Ada Lovelace',
-      shortDescription: 'Met at a conference.',
-      createdAt: '2026-02-28T00:00:00.000Z',
-      updatedAt: '2026-02-28T00:00:00.000Z',
+      description: 'Met at a conference.',
     })
 
     renderAddPersonPage()
@@ -110,7 +108,7 @@ describe('AddPersonPage', () => {
     await waitFor(() => {
       expect(mockedCreatePerson).toHaveBeenCalledWith({
         name: 'Ada Lovelace',
-        shortDescription: 'Met at a conference.',
+        description: 'Met at a conference.',
       })
     })
 

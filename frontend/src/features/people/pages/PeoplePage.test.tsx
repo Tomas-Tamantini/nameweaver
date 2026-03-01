@@ -17,17 +17,13 @@ const mockedUsePeopleSearch = vi.mocked(usePeopleSearch)
 const ADA: Person = {
   id: 1,
   name: 'Ada Lovelace',
-  shortDescription: 'Met at a conference.',
-  createdAt: '2026-02-21T18:00:00.000Z',
-  updatedAt: '2026-02-21T18:00:00.000Z',
+  description: 'Met at a conference.',
 }
 
 const ALAN: Person = {
   id: 2,
   name: 'Alan Turing',
-  shortDescription: 'Discussed algorithms.',
-  createdAt: '2026-02-21T18:30:00.000Z',
-  updatedAt: '2026-02-21T18:30:00.000Z',
+  description: 'Discussed algorithms.',
 }
 
 function buildHookResult(
@@ -54,7 +50,9 @@ afterEach(() => {
 describe('PeoplePage', () => {
   it('renders search and list content from the hook state', () => {
     mockedUsePeopleSearch.mockReturnValue(
-      buildHookResult({ state: { status: 'success', people: [ADA] } }),
+      buildHookResult({
+        state: { status: 'success', total: 1, people: [ADA] },
+      }),
     )
 
     render(
@@ -100,7 +98,7 @@ describe('PeoplePage', () => {
     mockedUsePeopleSearch.mockReturnValue(
       buildHookResult({
         query: '',
-        state: { status: 'success', people: [ALAN] },
+        state: { status: 'success', total: 1, people: [ALAN] },
         onQueryChange,
       }),
     )

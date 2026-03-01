@@ -13,5 +13,6 @@ export type PeopleListState =
     }
   | {
       status: 'success'
+      total: number
       people: Person[]
     }

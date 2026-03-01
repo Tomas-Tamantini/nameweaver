@@ -15,7 +15,15 @@ function PeoplePage() {
           <Link to="/people/new">Add person</Link>
         </Button>
       </header>
-      <PeopleToolbar value={query} onQueryChange={onQueryChange} />
+      <div className="space-y-1">
+        <PeopleToolbar value={query} onQueryChange={onQueryChange} />
+        {state.status === 'success' && (
+          <p className="text-right text-sm text-muted-foreground">
+            {state.total}/{state.people.length}
+            {state.total === 1 ? 'person' : 'people'}
+          </p>
+        )}
+      </div>
       <PeopleList state={state} onRetry={reloadPeople} />
     </section>
   )

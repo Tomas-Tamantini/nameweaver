@@ -5,15 +5,16 @@ import { getPeople } from '@/features/people/services/people-service'
 import type { PeopleListState } from '@/features/people/models/people-list-state'
 
 function toPeopleListState(
-  people: Awaited<ReturnType<typeof getPeople>>,
+  response: Awaited<ReturnType<typeof getPeople>>,
 ): PeopleListState {
-  if (people.length === 0) {
+  if (response.items.length === 0) {
     return { status: 'empty' }
   }
 
   return {
     status: 'success',
-    people,
+    total: response.total,
+    people: response.items,
   }
 }
 

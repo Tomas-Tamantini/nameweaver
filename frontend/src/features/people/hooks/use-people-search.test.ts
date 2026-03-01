@@ -16,17 +16,13 @@ const mockedGetPeople = vi.mocked(getPeople)
 const ADA: Person = {
   id: 1,
   name: 'Ada Lovelace',
-  shortDescription: 'Met at a conference.',
-  createdAt: '2026-02-21T18:00:00.000Z',
-  updatedAt: '2026-02-21T18:00:00.000Z',
+  description: 'Met at a conference.',
 }
 
 const ALAN: Person = {
   id: 2,
   name: 'Alan Turing',
-  shortDescription: 'Discussed algorithms.',
-  createdAt: '2026-02-21T18:30:00.000Z',
-  updatedAt: '2026-02-21T18:30:00.000Z',
+  description: 'Discussed algorithms.',
 }
 
 function createDeferred<T>() {
@@ -52,7 +48,7 @@ afterEach(() => {
 
 describe('usePeopleSearch', () => {
   it('loads people on mount', async () => {
-    mockedGetPeople.mockResolvedValue([ADA])
+    mockedGetPeople.mockResolvedValue({ total: 1, items: [ADA] })
 
     const { result } = renderHook(() => usePeopleSearch())
 
@@ -67,7 +63,7 @@ describe('usePeopleSearch', () => {
   })
 
   it('sets empty state when service returns no people', async () => {
-    mockedGetPeople.mockResolvedValue([])
+    mockedGetPeople.mockResolvedValue({ total: 0, items: [] })
 
     const { result } = renderHook(() => usePeopleSearch())
 
@@ -77,7 +73,7 @@ describe('usePeopleSearch', () => {
   })
 
   it('searches using a debounced query', async () => {
-    mockedGetPeople.mockResolvedValue([ADA])
+    mockedGetPeople.mockResolvedValue({ total: 1, items: [ADA] })
 
     const { result } = renderHook(() => usePeopleSearch())
 
@@ -102,7 +98,7 @@ describe('usePeopleSearch', () => {
 
   it('sets error state and reloads successfully', async () => {
     mockedGetPeople.mockRejectedValueOnce(new Error('Network error'))
-    mockedGetPeople.mockResolvedValueOnce([ADA])
+    mockedGetPeople.mockResolvedValueOnce({ total: 1, items: [ADA] })
 
     const { result } = renderHook(() => usePeopleSearch())
 
@@ -124,8 +120,8 @@ describe('usePeopleSearch', () => {
   })
 
   it('ignores stale responses from previous queries', async () => {
-    const firstRequest = createDeferred<Person[]>()
-    const secondRequest = createDeferred<Person[]>()
+    const firstRequest = createDeferred<{ total: number; items: Person[] }>()
+    const secondRequest = createDeferred<{ total: number; items: Person[] }>()
 
     mockedGetPeople
       .mockImplementationOnce(() => firstRequest.promise)
@@ -142,20 +138,21 @@ describe('usePeopleSearch', () => {
     })
 
     await act(async () => {
-      firstRequest.resolve([ADA])
+      firstRequest.resolve({ total: 1, items: [ADA] })
       await Promise.resolve()
     })
 
     expect(result.current.state.status).toBe('loading')
 
     await act(async () => {
-      secondRequest.resolve([ALAN])
+      secondRequest.resolve({ total: 1, items: [ALAN] })
       await Promise.resolve()
     })
 
     await waitFor(() => {
       expect(result.current.state).toEqual({
         status: 'success',
+        total: 1,
         people: [ALAN],
       })
     })
@@ -163,9 +160,9 @@ describe('usePeopleSearch', () => {
 
   it('reloads with the current debounced query', async () => {
     mockedGetPeople
-      .mockResolvedValueOnce([ADA])
-      .mockResolvedValueOnce([ALAN])
-      .mockResolvedValueOnce([ALAN])
+      .mockResolvedValueOnce({ total: 1, items: [ADA] })
+      .mockResolvedValueOnce({ total: 1, items: [ALAN] })
+      .mockResolvedValueOnce({ total: 1, items: [ALAN] })
 
     const { result } = renderHook(() => usePeopleSearch())
 

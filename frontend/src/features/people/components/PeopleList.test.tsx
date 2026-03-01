@@ -54,20 +54,17 @@ describe('PeopleList', () => {
       <PeopleList
         state={{
           status: 'success',
+          total: 2,
           people: [
             {
               id: 1,
               name: 'Ada Lovelace',
-              shortDescription: 'Met at a conference.',
-              createdAt: '2026-02-21T18:00:00.000Z',
-              updatedAt: '2026-02-21T18:00:00.000Z',
+              description: 'Met at a conference.',
             },
             {
               id: 2,
               name: 'Alan Turing',
-              shortDescription: 'Discussed algorithms.',
-              createdAt: '2026-02-21T18:30:00.000Z',
-              updatedAt: '2026-02-21T18:30:00.000Z',
+              description: 'Discussed algorithms.',
             },
           ],
         }}

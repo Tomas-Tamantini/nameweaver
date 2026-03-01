@@ -32,7 +32,7 @@ const addPersonFormSchema = z.object({
     .trim()
     .min(1, 'Name is required.')
     .max(100, 'Name must be at most 100 characters.'),
-  shortDescription: z
+  description: z
     .string()
     .trim()
     .min(1, 'Short description is required.')
@@ -49,7 +49,7 @@ function AddPersonPage() {
     resolver: zodResolver(addPersonFormSchema),
     defaultValues: {
       name: '',
-      shortDescription: '',
+      description: '',
     },
   })
 
@@ -111,7 +111,7 @@ function AddPersonPage() {
               />
 
               <Controller
-                name="shortDescription"
+                name="description"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>

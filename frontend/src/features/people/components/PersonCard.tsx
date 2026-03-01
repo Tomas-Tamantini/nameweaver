@@ -16,7 +16,7 @@ function PersonCard({ person }: PersonCardProps) {
     <Card>
       <CardHeader>
         <CardTitle>{person.name}</CardTitle>
-        <CardDescription>{person.shortDescription}</CardDescription>
+        <CardDescription>{person.description}</CardDescription>
       </CardHeader>
     </Card>
   )

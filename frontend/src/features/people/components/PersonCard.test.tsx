@@ -14,9 +14,7 @@ describe('PersonCard', () => {
         person={{
           id: 1,
           name: 'Ada Lovelace',
-          shortDescription: 'Met at a conference.',
-          createdAt: '2026-02-21T18:00:00.000Z',
-          updatedAt: '2026-02-21T18:00:00.000Z',
+          description: 'Met at a conference.',
         }}
       />,
     )
