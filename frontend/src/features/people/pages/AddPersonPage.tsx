@@ -22,7 +22,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { createPerson } from '@/features/people/services/people-service'
-import { getApiErrorMessage } from '@/lib/api-error'
+import { getApiErrorMessage } from '@/lib/api'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
