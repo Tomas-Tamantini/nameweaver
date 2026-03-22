@@ -3,13 +3,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from backend.api.schemas.pagination import (
-    PaginatedResponse,
-)
 from backend.api.schemas.people import (
     CreatePersonRequest,
     GetPeopleQueryParams,
     PersonResponse,
+)
+from backend.domain.models.pagination import (
+    PaginatedResponse,
 )
 
 people_router = APIRouter(prefix="/people", tags=["people"])

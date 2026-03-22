@@ -3,7 +3,7 @@ from typing import Annotated, Optional
 from fastapi import Query
 from pydantic import BaseModel, Field
 
-from backend.api.schemas.pagination import PaginationQueryParams
+from backend.domain.models.pagination import PaginationQueryParams
 
 _EXAMPLE_NAME = "Ada Lovelace"
 _EXAMPLE_DESCRIPTION = "English mathematician and writer"
