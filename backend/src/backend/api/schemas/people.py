@@ -1,9 +1,14 @@
+from dataclasses import asdict
 from typing import Annotated, Optional
 
 from fastapi import Query
 from pydantic import BaseModel, Field
 
 from backend.domain.models.pagination import PaginationQueryParams
+from backend.domain.models.person import Person
+from backend.domain.repositories.person_repository import (
+    FilterPeopleQueryParams,
+)
 
 _EXAMPLE_NAME = "Ada Lovelace"
 _EXAMPLE_DESCRIPTION = "English mathematician and writer"
@@ -37,6 +42,10 @@ class PersonResponse(BaseModel):
         ),
     ]
 
+    @staticmethod
+    def from_domain(person: Person) -> "PersonResponse":
+        return PersonResponse(**asdict(person))
+
 
 class GetPeopleQueryParams(PaginationQueryParams):
     name: Annotated[
@@ -55,3 +64,11 @@ class GetPeopleQueryParams(PaginationQueryParams):
             examples=["mathematician"],
         ),
     ] = None
+
+    def pagination(self) -> PaginationQueryParams:
+        return PaginationQueryParams(limit=self.limit, offset=self.offset)
+
+    def filter(self) -> FilterPeopleQueryParams:
+        return FilterPeopleQueryParams(
+            name=self.name, description=self.description
+        )
