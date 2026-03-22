@@ -1,17 +1,14 @@
-from dataclasses import dataclass
-from typing import Optional, Protocol
+from typing import Protocol
 
 from backend.domain.models.pagination import (
     PaginatedResponse,
     PaginationQueryParams,
 )
-from backend.domain.models.person import Person, PersonBase
-
-
-@dataclass(frozen=True)
-class FilterPeopleQueryParams:
-    name: Optional[str]
-    description: Optional[str]
+from backend.domain.models.person import (
+    FilterPeopleQueryParams,
+    Person,
+    PersonBase,
+)
 
 
 class PersonRepository(Protocol):

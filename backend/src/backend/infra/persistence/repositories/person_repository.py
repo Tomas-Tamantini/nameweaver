@@ -4,11 +4,12 @@ from backend.domain.models.pagination import (
     PaginatedResponse,
     PaginationQueryParams,
 )
-from backend.domain.models.person import Person, PersonBase
-from backend.domain.repositories.person_repository import (
+from backend.domain.models.person import (
     FilterPeopleQueryParams,
-    PersonRepository,
+    Person,
+    PersonBase,
 )
+from backend.domain.repositories.person_repository import PersonRepository
 
 
 class FakePersonRepository(PersonRepository):

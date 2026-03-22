@@ -4,10 +4,7 @@ from fastapi import Query
 from pydantic import BaseModel, Field, NonNegativeInt, PositiveInt
 
 from backend.domain.models.pagination import PaginationQueryParams
-from backend.domain.models.person import Person
-from backend.domain.repositories.person_repository import (
-    FilterPeopleQueryParams,
-)
+from backend.domain.models.person import FilterPeopleQueryParams, Person
 
 _EXAMPLE_NAME = "Ada Lovelace"
 _EXAMPLE_DESCRIPTION = "English mathematician and writer"
