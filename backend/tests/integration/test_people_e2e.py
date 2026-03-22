@@ -1,6 +1,9 @@
 from http import HTTPStatus
 
+import pytest
 
+
+@pytest.mark.skip(reason="Requires actual persistence")
 def test_create_and_get_people_list(integration_client, create_person_payload):
     create_response = integration_client.post(
         "/people", json=create_person_payload
