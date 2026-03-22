@@ -1,21 +1,32 @@
 import { Input } from '@/components/ui/input'
+import type { PeopleSearchQuery } from '@/features/people/hooks/use-people-search'
 
 type PeopleToolbarProps = {
-  value: string
-  onQueryChange: (nextQuery: string) => void
+  query: PeopleSearchQuery
+  onQueryChange: (updates: Partial<PeopleSearchQuery>) => void
 }
 
-function PeopleToolbar({ value, onQueryChange }: PeopleToolbarProps) {
+function PeopleToolbar({ query, onQueryChange }: PeopleToolbarProps) {
   return (
-    <section aria-label="People toolbar">
+    <section aria-label="People toolbar" className="flex gap-2">
       <Input
         type="search"
-        placeholder="Search people by name or note"
-        aria-label="Search people"
+        placeholder="Filter by name"
+        aria-label="Filter by name"
         className="h-12"
-        value={value}
+        value={query.name}
         onChange={(event) => {
-          onQueryChange(event.target.value)
+          onQueryChange({ name: event.target.value })
+        }}
+      />
+      <Input
+        type="search"
+        placeholder="Filter by description"
+        aria-label="Filter by description"
+        className="h-12"
+        value={query.description}
+        onChange={(event) => {
+          onQueryChange({ description: event.target.value })
         }}
       />
     </section>

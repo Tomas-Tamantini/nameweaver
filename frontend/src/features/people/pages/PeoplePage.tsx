@@ -16,7 +16,7 @@ function PeoplePage() {
         </Button>
       </header>
       <div className="space-y-1">
-        <PeopleToolbar value={query} onQueryChange={onQueryChange} />
+        <PeopleToolbar query={query} onQueryChange={onQueryChange} />
         {state.status === 'success' && (
           <p className="text-right text-sm text-muted-foreground">
             {state.total}/{state.people.length}

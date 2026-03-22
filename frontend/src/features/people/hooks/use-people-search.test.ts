@@ -51,7 +51,7 @@ describe('usePeopleSearch', () => {
     })
 
     expect(mockedGetPeople).toHaveBeenCalledTimes(1)
-    expect(mockedGetPeople).toHaveBeenCalledWith({ q: '' })
+    expect(mockedGetPeople).toHaveBeenCalledWith({})
   })
 
   it('sets empty state when service returns no people', async () => {
@@ -64,7 +64,7 @@ describe('usePeopleSearch', () => {
     })
   })
 
-  it('searches using a debounced query', async () => {
+  it('searches by name using a debounced query', async () => {
     mockedGetPeople.mockResolvedValue({ total: 1, items: [ADA] })
 
     const { result } = renderHook(() => usePeopleSearch())
@@ -74,10 +74,10 @@ describe('usePeopleSearch', () => {
     })
 
     act(() => {
-      result.current.onQueryChange('Ada')
+      result.current.onQueryChange({ name: 'Ada' })
     })
 
-    expect(result.current.query).toBe('Ada')
+    expect(result.current.query).toEqual({ name: 'Ada', description: '' })
     expect(result.current.state.status).toBe('loading')
     expect(mockedGetPeople).toHaveBeenCalledTimes(1)
 
@@ -85,7 +85,7 @@ describe('usePeopleSearch', () => {
       expect(mockedGetPeople).toHaveBeenCalledTimes(2)
     })
 
-    expect(mockedGetPeople).toHaveBeenNthCalledWith(2, { q: 'Ada' })
+    expect(mockedGetPeople).toHaveBeenNthCalledWith(2, { name: 'Ada' })
   })
 
   it('sets error state and reloads successfully', async () => {
@@ -107,8 +107,8 @@ describe('usePeopleSearch', () => {
 
     expect(result.current.state.status).toBe('success')
     expect(mockedGetPeople).toHaveBeenCalledTimes(2)
-    expect(mockedGetPeople).toHaveBeenNthCalledWith(1, { q: '' })
-    expect(mockedGetPeople).toHaveBeenNthCalledWith(2, { q: '' })
+    expect(mockedGetPeople).toHaveBeenNthCalledWith(1, {})
+    expect(mockedGetPeople).toHaveBeenNthCalledWith(2, {})
   })
 
   it('ignores stale responses from previous queries', async () => {
@@ -122,7 +122,7 @@ describe('usePeopleSearch', () => {
     const { result } = renderHook(() => usePeopleSearch())
 
     act(() => {
-      result.current.onQueryChange('Alan')
+      result.current.onQueryChange({ name: 'Alan' })
     })
 
     await waitFor(() => {
@@ -163,7 +163,7 @@ describe('usePeopleSearch', () => {
     })
 
     act(() => {
-      result.current.onQueryChange('Alan')
+      result.current.onQueryChange({ name: 'Alan' })
     })
 
     await waitFor(() => {
@@ -175,7 +175,7 @@ describe('usePeopleSearch', () => {
     })
 
     expect(mockedGetPeople).toHaveBeenCalledTimes(3)
-    expect(mockedGetPeople).toHaveBeenNthCalledWith(2, { q: 'Alan' })
-    expect(mockedGetPeople).toHaveBeenNthCalledWith(3, { q: 'Alan' })
+    expect(mockedGetPeople).toHaveBeenNthCalledWith(2, { name: 'Alan' })
+    expect(mockedGetPeople).toHaveBeenNthCalledWith(3, { name: 'Alan' })
   })
 })

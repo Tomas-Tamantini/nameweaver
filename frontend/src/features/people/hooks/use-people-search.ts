@@ -18,37 +18,52 @@ function toPeopleListState(
   }
 }
 
+export type PeopleSearchQuery = {
+  name: string
+  description: string
+}
+
+const EMPTY_QUERY: PeopleSearchQuery = { name: '', description: '' }
+
 type UsePeopleSearchResult = {
-  query: string
+  query: PeopleSearchQuery
   state: PeopleListState
-  onQueryChange: (nextQuery: string) => void
+  onQueryChange: (updates: Partial<PeopleSearchQuery>) => void
   reloadPeople: () => Promise<void>
 }
 
 function usePeopleSearch(): UsePeopleSearchResult {
-  const [query, setQuery] = useState('')
-  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [query, setQuery] = useState<PeopleSearchQuery>(EMPTY_QUERY)
+  const [debouncedQuery, setDebouncedQuery] =
+    useState<PeopleSearchQuery>(EMPTY_QUERY)
   const [state, setState] = useState<PeopleListState>({ status: 'loading' })
 
-  const onQueryChange = useCallback((nextQuery: string) => {
-    setQuery(nextQuery)
+  const onQueryChange = useCallback((updates: Partial<PeopleSearchQuery>) => {
+    setQuery((prev) => ({ ...prev, ...updates }))
     setState({ status: 'loading' })
   }, [])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      setDebouncedQuery(query)
+      setDebouncedQuery({ name: query.name, description: query.description })
     }, 250)
 
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [query])
+  }, [query.name, query.description])
 
   useEffect(() => {
     let isActive = true
 
-    void getPeople({ q: debouncedQuery })
+    const params = {
+      ...(debouncedQuery.name && { name: debouncedQuery.name }),
+      ...(debouncedQuery.description && {
+        description: debouncedQuery.description,
+      }),
+    }
+
+    void getPeople(params)
       .then((people) => {
         if (!isActive) {
           return
@@ -67,18 +82,25 @@ function usePeopleSearch(): UsePeopleSearchResult {
     return () => {
       isActive = false
     }
-  }, [debouncedQuery])
+  }, [debouncedQuery.name, debouncedQuery.description])
 
   const reloadPeople = useCallback(async () => {
     setState({ status: 'loading' })
 
+    const params = {
+      ...(debouncedQuery.name && { name: debouncedQuery.name }),
+      ...(debouncedQuery.description && {
+        description: debouncedQuery.description,
+      }),
+    }
+
     try {
-      const people = await getPeople({ q: debouncedQuery })
+      const people = await getPeople(params)
       setState(toPeopleListState(people))
     } catch {
       setState({ status: 'error', message: 'Could not fetch people.' })
     }
-  }, [debouncedQuery])
+  }, [debouncedQuery.name, debouncedQuery.description])
 
   return {
     query,

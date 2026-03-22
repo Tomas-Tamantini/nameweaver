@@ -3,7 +3,8 @@ import type { PaginatedResponse } from '@/lib/pagination'
 import type { CreatePersonRequest, Person } from '../models/person'
 
 export type GetPeopleQuery = {
-  q?: string
+  name?: string
+  description?: string
 }
 
 export async function getPeople(

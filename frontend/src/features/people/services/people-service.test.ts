@@ -35,17 +35,32 @@ describe('people-service', () => {
       expect(result).toEqual(mockResponse)
     })
 
-    it('calls apiClient.get with search query parameter', async () => {
+    it('calls apiClient.get with name filter parameter', async () => {
       const mockResponse: PaginatedResponse<Person> = {
         total: 1,
         items: [buildPerson({ name: 'Ada Lovelace' })],
       }
       mockedApiClient.get.mockResolvedValue(mockResponse)
 
-      const result = await getPeople({ q: 'Ada' })
+      const result = await getPeople({ name: 'Ada' })
 
       expect(apiClient.get).toHaveBeenCalledWith('/people', {
-        params: { q: 'Ada' },
+        params: { name: 'Ada' },
+      })
+      expect(result).toEqual(mockResponse)
+    })
+
+    it('calls apiClient.get with description filter parameter', async () => {
+      const mockResponse: PaginatedResponse<Person> = {
+        total: 1,
+        items: [buildPerson({ description: 'mathematician' })],
+      }
+      mockedApiClient.get.mockResolvedValue(mockResponse)
+
+      const result = await getPeople({ description: 'mathematician' })
+
+      expect(apiClient.get).toHaveBeenCalledWith('/people', {
+        params: { description: 'mathematician' },
       })
       expect(result).toEqual(mockResponse)
     })
@@ -57,7 +72,7 @@ describe('people-service', () => {
       }
       mockedApiClient.get.mockResolvedValue(mockResponse)
 
-      const result = await getPeople({ q: 'nonexistent' })
+      const result = await getPeople({ name: 'nonexistent' })
 
       expect(result.total).toBe(0)
       expect(result.items).toHaveLength(0)

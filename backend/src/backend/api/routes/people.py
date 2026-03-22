@@ -65,13 +65,19 @@ def get_people(
     query_params: Annotated[GetPeopleQueryParams, Query()],
 ) -> PaginatedResponse[PersonResponse]:
     filtered_people = _fake_people_db
-    if query_params.q:
-        q_lower = query_params.q.lower()
+    if query_params.name:
+        name_lower = query_params.name.lower()
         filtered_people = [
             person
-            for person in _fake_people_db
-            if q_lower in person["name"].lower()
-            or q_lower in person["description"].lower()
+            for person in filtered_people
+            if name_lower in person["name"].lower()
+        ]
+    if query_params.description:
+        desc_lower = query_params.description.lower()
+        filtered_people = [
+            person
+            for person in filtered_people
+            if desc_lower in person["description"].lower()
         ]
 
     paginated_people = filtered_people[

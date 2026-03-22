@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import type { PeopleSearchQuery } from '@/features/people/hooks/use-people-search'
 import usePeopleSearch from '@/features/people/hooks/use-people-search'
 import { buildPerson } from '@/test/factories/person'
 import PeoplePage from './PeoplePage'
@@ -19,14 +20,14 @@ const ALAN = buildPerson()
 
 function buildHookResult(
   overrides: {
-    query?: string
+    query?: PeopleSearchQuery
     state?: PeopleListState
-    onQueryChange?: (nextQuery: string) => void
+    onQueryChange?: (updates: Partial<PeopleSearchQuery>) => void
     reloadPeople?: () => Promise<void>
   } = {},
 ) {
   return {
-    query: overrides.query ?? '',
+    query: overrides.query ?? { name: '', description: '' },
     state: overrides.state ?? { status: 'loading' },
     onQueryChange: overrides.onQueryChange ?? vi.fn(),
     reloadPeople: overrides.reloadPeople ?? vi.fn(async () => {}),
@@ -39,7 +40,7 @@ afterEach(() => {
 })
 
 describe('PeoplePage', () => {
-  it('renders search and list content from the hook state', () => {
+  it('renders filter inputs and list content from the hook state', () => {
     mockedUsePeopleSearch.mockReturnValue(
       buildHookResult({
         state: { status: 'success', total: 1, people: [ADA] },
@@ -53,7 +54,10 @@ describe('PeoplePage', () => {
     )
 
     expect(
-      screen.getByRole('searchbox', { name: 'Search people' }),
+      screen.getByRole('searchbox', { name: 'Filter by name' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('searchbox', { name: 'Filter by description' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Add person' })).toHaveAttribute(
       'href',
@@ -84,11 +88,10 @@ describe('PeoplePage', () => {
     expect(reloadPeople).toHaveBeenCalledTimes(1)
   })
 
-  it('wires search input changes to onQueryChange', () => {
+  it('wires name input changes to onQueryChange', () => {
     const onQueryChange = vi.fn()
     mockedUsePeopleSearch.mockReturnValue(
       buildHookResult({
-        query: '',
         state: { status: 'success', total: 1, people: [ALAN] },
         onQueryChange,
       }),
@@ -100,10 +103,34 @@ describe('PeoplePage', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Search people' }), {
-      target: { value: 'Ada' },
-    })
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: 'Filter by name' }),
+      { target: { value: 'Ada' } },
+    )
 
-    expect(onQueryChange).toHaveBeenCalledWith('Ada')
+    expect(onQueryChange).toHaveBeenCalledWith({ name: 'Ada' })
+  })
+
+  it('wires description input changes to onQueryChange', () => {
+    const onQueryChange = vi.fn()
+    mockedUsePeopleSearch.mockReturnValue(
+      buildHookResult({
+        state: { status: 'success', total: 1, people: [ALAN] },
+        onQueryChange,
+      }),
+    )
+
+    render(
+      <MemoryRouter>
+        <PeoplePage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(
+      screen.getByRole('searchbox', { name: 'Filter by description' }),
+      { target: { value: 'mathematician' } },
+    )
+
+    expect(onQueryChange).toHaveBeenCalledWith({ description: 'mathematician' })
   })
 })

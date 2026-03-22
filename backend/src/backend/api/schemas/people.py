@@ -39,10 +39,19 @@ class PersonResponse(BaseModel):
 
 
 class GetPeopleQueryParams(PaginationQueryParams):
-    q: Annotated[
+    name: Annotated[
         Optional[str],
         Query(
-            description="Search query to filter people by name or description",
-            examples=["mathematician", "Ada"],
+            description="Filter people by name "
+            "(case-insensitive substring match)",
+            examples=["Ada"],
+        ),
+    ] = None
+    description: Annotated[
+        Optional[str],
+        Query(
+            description="Filter people by description "
+            "(case-insensitive substring match)",
+            examples=["mathematician"],
         ),
     ] = None

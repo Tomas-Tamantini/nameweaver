@@ -9,7 +9,8 @@ def test_create_and_get_people_list(integration_client, create_person_payload):
     person_id = create_response.json()["id"]
 
     list_response = integration_client.get(
-        "/people", params={"q": create_person_payload["description"]}
+        "/people",
+        params={"description": create_person_payload["description"]},
     )
     assert list_response.status_code == HTTPStatus.OK
     people_response = list_response.json()
