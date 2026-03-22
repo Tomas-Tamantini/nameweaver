@@ -60,18 +60,18 @@ class FakePersonRepository(PersonRepository):
     def get_many(
         self,
         pagination: PaginationQueryParams,
-        filter: FilterPeopleQueryParams,
+        filters: FilterPeopleQueryParams,
     ) -> PaginatedResponse[Person]:
         filtered_people = self._people
-        if filter.name:
-            name_lower = filter.name.lower()
+        if filters.name:
+            name_lower = filters.name.lower()
             filtered_people = [
                 person
                 for person in filtered_people
                 if name_lower in person.name.lower()
             ]
-        if filter.description:
-            desc_lower = filter.description.lower()
+        if filters.description:
+            desc_lower = filters.description.lower()
             filtered_people = [
                 person
                 for person in filtered_people

@@ -73,7 +73,7 @@ class GetPeopleQueryParams(BaseModel):
     def pagination(self) -> PaginationQueryParams:
         return PaginationQueryParams(limit=self.limit, offset=self.offset)
 
-    def filter(self) -> FilterPeopleQueryParams:
+    def filters(self) -> FilterPeopleQueryParams:
         return FilterPeopleQueryParams(
             name=self.name, description=self.description
         )

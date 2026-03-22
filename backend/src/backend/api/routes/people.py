@@ -33,7 +33,7 @@ def get_people(
     query_params: Annotated[GetPeopleQueryParams, Query()],
 ) -> PaginatedResponse[PersonResponse]:
     result = repository.get_many(
-        pagination=query_params.pagination(), filter=query_params.filter()
+        pagination=query_params.pagination(), filters=query_params.filters()
     )
     return PaginatedResponse(
         total=result.total,

@@ -17,5 +17,5 @@ class PersonRepository(Protocol):
     def get_many(
         self,
         pagination: PaginationQueryParams,
-        filter: FilterPeopleQueryParams,
+        filters: FilterPeopleQueryParams,
     ) -> PaginatedResponse[Person]: ...
