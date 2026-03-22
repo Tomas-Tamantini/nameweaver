@@ -1,15 +1,16 @@
+from dataclasses import dataclass
 from typing import Generic, Sequence, TypeVar
-
-from pydantic import BaseModel, NonNegativeInt
 
 T = TypeVar("T")
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+@dataclass(frozen=True)
+class PaginatedResponse(Generic[T]):
     total: int
     items: Sequence[T]
 
 
-class PaginationQueryParams(BaseModel):
-    offset: NonNegativeInt = 0
-    limit: NonNegativeInt = 10
+@dataclass(frozen=True)
+class PaginationQueryParams:
+    offset: int = 0
+    limit: int = 10
