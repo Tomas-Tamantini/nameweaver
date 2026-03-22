@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -15,5 +14,5 @@ class Person(PersonBase):
 
 @dataclass(frozen=True)
 class FilterPeopleQueryParams:
-    name: Optional[str]
-    description: Optional[str]
+    name: str | None
+    description: str | None

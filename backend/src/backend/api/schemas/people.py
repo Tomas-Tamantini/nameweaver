@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Query
 from pydantic import BaseModel, Field, NonNegativeInt, PositiveInt
@@ -54,7 +54,7 @@ class GetPeopleQueryParams(BaseModel):
         Query(description="Maximum number of items to return", le=100),
     ] = 10
     name: Annotated[
-        Optional[str],
+        str | None,
         Query(
             description="Filter people by name "
             "(case-insensitive substring match)",
@@ -62,7 +62,7 @@ class GetPeopleQueryParams(BaseModel):
         ),
     ] = None
     description: Annotated[
-        Optional[str],
+        str | None,
         Query(
             description="Filter people by description "
             "(case-insensitive substring match)",
