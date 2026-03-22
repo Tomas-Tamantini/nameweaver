@@ -11,79 +11,31 @@ from backend.api.schemas.people import (
 from backend.domain.models.pagination import (
     PaginatedResponse,
 )
+from backend.domain.models.person import PersonBase
+from backend.infra.persistence.repositories.person_repository import (
+    FakePersonRepository,
+)
 
 people_router = APIRouter(prefix="/people", tags=["people"])
 
-_fake_people_db = [
-    {
-        "id": 1,
-        "name": "Ada Lovelace",
-        "description": "English mathematician and writer, known for her work "
-        "on Charles Babbage's early mechanical general-purpose computer.",
-    },
-    {
-        "id": 2,
-        "name": "Alan Turing",
-        "description": "English mathematician, computer scientist, logician, "
-        "cryptanalyst, philosopher, and theoretical biologist.",
-    },
-    {
-        "id": 3,
-        "name": "Grace Hopper",
-        "description": "American computer scientist and United States "
-        "Navy rear admiral. She was a pioneer of computer programming.",
-    },
-    {
-        "id": 4,
-        "name": "Katherine Johnson",
-        "description": "American mathematician whose calculations of orbital "
-        "mechanics were critical to the success of crewed spaceflights.",
-    },
-    {
-        "id": 5,
-        "name": "Tim Berners-Lee",
-        "description": "English engineer and computer scientist, "
-        "best known as the inventor of the World Wide Web.",
-    },
-]
+repository = FakePersonRepository()
 
 
 @people_router.post("/", status_code=HTTPStatus.CREATED)
 def create_person(body: CreatePersonRequest) -> PersonResponse:
-    new_id = max(person["id"] for person in _fake_people_db) + 1
-    new_person = {
-        "id": new_id,
-        "name": body.name,
-        "description": body.description,
-    }
-    _fake_people_db.append(new_person)
-    return PersonResponse(**new_person)
+    parsed = PersonBase(name=body.name, description=body.description)
+    new_person = repository.create(parsed)
+    return PersonResponse.from_domain(new_person)
 
 
 @people_router.get("/")
 def get_people(
     query_params: Annotated[GetPeopleQueryParams, Query()],
 ) -> PaginatedResponse[PersonResponse]:
-    filtered_people = _fake_people_db
-    if query_params.name:
-        name_lower = query_params.name.lower()
-        filtered_people = [
-            person
-            for person in filtered_people
-            if name_lower in person["name"].lower()
-        ]
-    if query_params.description:
-        desc_lower = query_params.description.lower()
-        filtered_people = [
-            person
-            for person in filtered_people
-            if desc_lower in person["description"].lower()
-        ]
-
-    paginated_people = filtered_people[
-        query_params.offset : query_params.offset + query_params.limit
-    ]
+    result = repository.get_many(
+        pagination=query_params.pagination(), filter=query_params.filter()
+    )
     return PaginatedResponse(
-        total=len(filtered_people),
-        items=[PersonResponse(**person) for person in paginated_people],
+        total=result.total,
+        items=[PersonResponse.from_domain(p) for p in result.items],
     )
