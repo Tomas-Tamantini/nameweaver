@@ -1,10 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.routes import all_routers
+from backend.infra.persistence.database import create_tables
 from backend.settings import get_settings
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 allow_origins = list(map(str.strip, get_settings().ALLOWED_ORIGINS.split(",")))
 
 app.add_middleware(
