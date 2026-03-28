@@ -46,6 +46,8 @@ preview = true
 [tool.taskipy.tasks]
 pre_format = "ruff check --fix"
 format = "ruff format"
+"migrate:apply" = "alembic upgrade head"
+"migrate:make" = "alembic revision --autogenerate -m"
 run = "fastapi dev src/backend/app.py"
 pre_test = "ruff check"
 test = "pytest -s -x --cov=src --cov-branch -vv"
