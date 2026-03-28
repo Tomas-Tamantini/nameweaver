@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     )
 
     ALLOWED_ORIGINS: str
+    DATABASE_URL: str
 
 
 @cache
