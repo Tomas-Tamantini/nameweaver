@@ -43,6 +43,7 @@ jobs:
     needs: quality
     env:
       ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     defaults:
       run:
         working-directory: backend
