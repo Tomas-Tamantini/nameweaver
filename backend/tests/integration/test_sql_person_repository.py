@@ -1,8 +1,12 @@
+import pytest
+
 from backend.domain.models.pagination import PaginationQueryParams
 from backend.domain.models.person import FilterPeopleQueryParams, PersonBase
 from backend.infra.persistence.repositories.sql_person_repository import (
     SqlPersonRepository,
 )
+
+pytestmark = pytest.mark.integration
 
 
 def _make_repo(db_session):

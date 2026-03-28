@@ -32,6 +32,12 @@ Copy `.env.example` to `.env` and adjust values as needed.
   uv run task test
   ```
 
+- Run fast unit tests only:
+
+  ```bash
+  uv run task test:unit
+  ```
+
 - Apply all pending database migrations:
 
   ```bash
