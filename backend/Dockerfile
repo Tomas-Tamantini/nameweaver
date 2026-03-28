@@ -1,7 +1,7 @@
 FROM python:3.14-slim
 
-# Install curl for healthchecks
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install curl for healthchecks and libpq for psycopg2
+RUN apt-get update && apt-get install -y curl libpq5 && rm -rf /var/lib/apt/lists/*
 
 # Install uv.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/

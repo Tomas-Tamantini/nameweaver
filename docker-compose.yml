@@ -1,4 +1,18 @@
 services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=nameweaver
+      - POSTGRES_PASSWORD=nameweaver
+      - POSTGRES_DB=nameweaver
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nameweaver"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -7,6 +21,10 @@ services:
       - "8000:8000"
     environment:
       - ALLOWED_ORIGINS=http://localhost:3000,http://localhost
+      - DATABASE_URL=postgresql://nameweaver:nameweaver@db:5432/nameweaver
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -31,3 +49,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
+
+volumes:
+  pgdata:
