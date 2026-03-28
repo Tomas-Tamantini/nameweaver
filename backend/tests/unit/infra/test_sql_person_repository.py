@@ -1,0 +1,130 @@
+from backend.domain.models.pagination import PaginationQueryParams
+from backend.domain.models.person import FilterPeopleQueryParams, PersonBase
+from backend.infra.persistence.repositories.sql_person_repository import (
+    SqlPersonRepository,
+)
+
+
+def _make_repo(db_session):
+    return SqlPersonRepository(db_session)
+
+
+def _create_person(repo, name="Alice", description="A test person"):
+    return repo.create(PersonBase(name=name, description=description))
+
+
+def test_create_returns_person_with_generated_id(db_session):
+    repo = _make_repo(db_session)
+    person = _create_person(repo)
+    assert person.id is not None
+    assert person.name == "Alice"
+    assert person.description == "A test person"
+
+
+def test_create_sequential_ids(db_session):
+    repo = _make_repo(db_session)
+    first = _create_person(repo)
+    second = _create_person(repo, name="Bob")
+    assert second.id == first.id + 1
+
+
+def test_get_many_empty_table_returns_zero_total(db_session):
+    repo = _make_repo(db_session)
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name=None, description=None),
+    )
+    assert result.total == 0
+    assert result.items == []
+
+
+def test_get_many_returns_all_created_people(db_session):
+    repo = _make_repo(db_session)
+    _create_person(repo, name="Alice")
+    _create_person(repo, name="Bob")
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name=None, description=None),
+    )
+    assert result.total == 2
+    assert len(result.items) == 2
+
+
+def test_get_many_pagination_offset_and_limit(db_session):
+    repo = _make_repo(db_session)
+    for i in range(5):
+        _create_person(repo, name=f"Person {i}")
+    result = repo.get_many(
+        PaginationQueryParams(offset=2, limit=2),
+        FilterPeopleQueryParams(name=None, description=None),
+    )
+    assert result.total == 5
+    assert len(result.items) == 2
+    assert result.items[0].name == "Person 2"
+
+
+def test_get_many_limit_exceeding_total_returns_remaining(db_session):
+    repo = _make_repo(db_session)
+    _create_person(repo, name="Only One")
+    result = repo.get_many(
+        PaginationQueryParams(offset=0, limit=10),
+        FilterPeopleQueryParams(name=None, description=None),
+    )
+    assert result.total == 1
+    assert len(result.items) == 1
+
+
+def test_get_many_filter_by_name_case_insensitive(db_session):
+    repo = _make_repo(db_session)
+    _create_person(repo, name="Ada Lovelace")
+    _create_person(repo, name="Alan Turing")
+    _create_person(repo, name="Grace Hopper")
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name="al", description=None),
+    )
+    assert result.total == 1
+    assert result.items[0].name == "Alan Turing"
+
+
+def test_get_many_filter_by_description_case_insensitive(db_session):
+    repo = _make_repo(db_session)
+    _create_person(repo, name="Ada", description="English mathematician")
+    _create_person(
+        repo, name="Grace", description="American computer scientist"
+    )
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name=None, description="english"),
+    )
+    assert result.total == 1
+    assert result.items[0].name == "Ada"
+
+
+def test_get_many_filter_by_name_and_description(db_session):
+    repo = _make_repo(db_session)
+    _create_person(repo, name="Ada", description="English mathematician")
+    _create_person(repo, name="Alan", description="English computer scientist")
+    _create_person(
+        repo, name="Grace", description="American computer scientist"
+    )
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name="al", description="computer scientist"),
+    )
+    assert result.total == 1
+    assert result.items[0].name == "Alan"
+
+
+def test_get_many_filters_with_pagination(db_session):
+    repo = _make_repo(db_session)
+    for i in range(5):
+        _create_person(repo, name=f"Alice {i}")
+    _create_person(repo, name="Bob")
+    result = repo.get_many(
+        PaginationQueryParams(offset=1, limit=2),
+        FilterPeopleQueryParams(name="alice", description=None),
+    )
+    assert result.total == 5
+    assert len(result.items) == 2
+    assert result.items[0].name == "Alice 1"
