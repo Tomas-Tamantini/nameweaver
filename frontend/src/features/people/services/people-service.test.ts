@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/api'
 import type { PaginatedResponse } from '@/lib/pagination'
-import { buildPerson } from '@/test/factories/person'
+import { buildPerson } from '@/test-utils/factories/person'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Person } from '../models/person'
 import { createPerson, getPeople } from './people-service'

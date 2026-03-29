@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { buildPerson } from '@/test/factories/person'
+import { buildPerson } from '@/test-utils/factories/person'
 import PersonCard from './PersonCard'
 
 afterEach(() => {

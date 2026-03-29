@@ -13,7 +13,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./src/test-utils/setup.ts'],
     coverage: {
       exclude: ['src/components/ui/**'],
     },

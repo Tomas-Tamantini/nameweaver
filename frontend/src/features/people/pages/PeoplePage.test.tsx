@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { PeopleSearchQuery } from '@/features/people/hooks/use-people-search'
 import usePeopleSearch from '@/features/people/hooks/use-people-search'
-import { buildPerson } from '@/test/factories/person'
+import { buildPerson } from '@/test-utils/factories/person'
 import PeoplePage from './PeoplePage'
 
 import type { PeopleListState } from '@/features/people/models/people-list-state'
