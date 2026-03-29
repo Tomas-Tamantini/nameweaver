@@ -10,7 +10,7 @@ export type GetPeopleQuery = {
 export async function getPeople(
   query: GetPeopleQuery = {},
 ): Promise<PaginatedResponse<Person>> {
-  return apiClient.get<PaginatedResponse<Person>>('/people', {
+  return apiClient.get<PaginatedResponse<Person>>('/people/', {
     params: query,
   })
 }
@@ -18,5 +18,5 @@ export async function getPeople(
 export async function createPerson(
   input: CreatePersonRequest,
 ): Promise<Person> {
-  return apiClient.post<Person>('/people', input)
+  return apiClient.post<Person>('/people/', input)
 }
