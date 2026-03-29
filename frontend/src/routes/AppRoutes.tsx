@@ -1,8 +1,8 @@
 import { AddPersonPage, PeoplePage } from '@/features/people'
-import NotFoundPage from '@/pages/NotFoundPage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-function AppRoutes() {
+export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/people" replace />} />
@@ -12,5 +12,3 @@ function AppRoutes() {
     </Routes>
   )
 }
-
-export default AppRoutes

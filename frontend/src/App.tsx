@@ -1,7 +1,7 @@
-import AppHeader from '@/components/shared/AppHeader'
-import AppRoutes from '@/routes/AppRoutes'
+import { AppHeader } from '@/components/shared/AppHeader'
+import { AppRoutes } from '@/routes/AppRoutes'
 
-function App() {
+export function App() {
   return (
     <div className="min-h-screen bg-muted/30 text-foreground">
       <AppHeader />
@@ -11,5 +11,3 @@ function App() {
     </div>
   )
 }
-
-export default App

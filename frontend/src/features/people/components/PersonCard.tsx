@@ -22,4 +22,4 @@ function PersonCard({ person }: PersonCardProps) {
   )
 }
 
-export default PersonCard
+export { PersonCard }

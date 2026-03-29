@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { buildPerson } from '@/test-utils/factories/person'
-import usePeopleSearch from './use-people-search'
+import { usePeopleSearch } from './use-people-search'
 
 import type { Person } from '@/features/people/models/person'
 

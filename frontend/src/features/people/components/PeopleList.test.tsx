@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { buildPerson } from '@/test-utils/factories/person'
-import PeopleList from './PeopleList'
+import { PeopleList } from './PeopleList'
 
 afterEach(() => {
   cleanup()

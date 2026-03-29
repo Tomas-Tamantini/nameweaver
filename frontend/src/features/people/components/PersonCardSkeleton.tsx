@@ -19,4 +19,4 @@ function PersonCardSkeleton({
   )
 }
 
-export default PersonCardSkeleton
+export { PersonCardSkeleton }

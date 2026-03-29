@@ -159,4 +159,4 @@ function AddPersonPage() {
   )
 }
 
-export default AddPersonPage
+export { AddPersonPage }

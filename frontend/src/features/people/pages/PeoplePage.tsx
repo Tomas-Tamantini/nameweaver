@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
-import PeopleList from '@/features/people/components/PeopleList'
-import PeopleToolbar from '@/features/people/components/PeopleToolbar'
-import usePeopleSearch from '@/features/people/hooks/use-people-search'
+import { PeopleList } from '@/features/people/components/PeopleList'
+import { PeopleToolbar } from '@/features/people/components/PeopleToolbar'
+import { usePeopleSearch } from '@/features/people/hooks/use-people-search'
 import { Link } from 'react-router-dom'
 
 function PeoplePage() {
@@ -29,4 +29,4 @@ function PeoplePage() {
   )
 }
 
-export default PeoplePage
+export { PeoplePage }

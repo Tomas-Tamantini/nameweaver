@@ -10,7 +10,7 @@ import {
 import { SearchX } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-function NotFoundPage() {
+export function NotFoundPage() {
   return (
     <section aria-live="polite">
       <Empty>
@@ -32,5 +32,3 @@ function NotFoundPage() {
     </section>
   )
 }
-
-export default NotFoundPage

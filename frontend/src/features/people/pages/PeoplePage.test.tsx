@@ -3,14 +3,14 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { PeopleSearchQuery } from '@/features/people/hooks/use-people-search'
-import usePeopleSearch from '@/features/people/hooks/use-people-search'
+import { usePeopleSearch } from '@/features/people/hooks/use-people-search'
 import { buildPerson } from '@/test-utils/factories/person'
-import PeoplePage from './PeoplePage'
+import { PeoplePage } from './PeoplePage'
 
 import type { PeopleListState } from '@/features/people/models/people-list-state'
 
 vi.mock('@/features/people/hooks/use-people-search', () => ({
-  default: vi.fn(),
+  usePeopleSearch: vi.fn(),
 }))
 
 const mockedUsePeopleSearch = vi.mocked(usePeopleSearch)

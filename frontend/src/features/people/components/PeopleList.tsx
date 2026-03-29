@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/empty'
 import { BugIcon } from 'lucide-react'
 import type { PeopleListState } from '../models/people-list-state'
-import PersonCard from './PersonCard'
-import PersonCardSkeleton from './PersonCardSkeleton'
+import { PersonCard } from './PersonCard'
+import { PersonCardSkeleton } from './PersonCardSkeleton'
 
 type PeopleListProps = {
   state: PeopleListState
@@ -70,4 +70,4 @@ function PeopleList({ state, onRetry }: PeopleListProps) {
   )
 }
 
-export default PeopleList
+export { PeopleList }

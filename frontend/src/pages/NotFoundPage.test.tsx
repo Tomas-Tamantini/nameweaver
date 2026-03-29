@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import NotFoundPage from './NotFoundPage'
+import { NotFoundPage } from './NotFoundPage'
 
 function LocationDisplay() {
   const location = useLocation()

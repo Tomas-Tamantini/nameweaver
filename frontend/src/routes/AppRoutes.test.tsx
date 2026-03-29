@@ -2,7 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import AppRoutes from './AppRoutes'
+import { AppRoutes } from './AppRoutes'
 
 function LocationDisplay() {
   const location = useLocation()

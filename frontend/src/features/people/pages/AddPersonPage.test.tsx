@@ -11,7 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createPerson } from '@/features/people/services/people-service'
 import { buildPerson } from '@/test-utils/factories/person'
 import { toast } from 'sonner'
-import AddPersonPage from './AddPersonPage'
+import { AddPersonPage } from './AddPersonPage'
 
 vi.mock('@/features/people/services/people-service', () => ({
   createPerson: vi.fn(),

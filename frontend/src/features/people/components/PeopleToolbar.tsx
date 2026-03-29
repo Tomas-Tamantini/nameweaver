@@ -33,4 +33,4 @@ function PeopleToolbar({ query, onQueryChange }: PeopleToolbarProps) {
   )
 }
 
-export default PeopleToolbar
+export { PeopleToolbar }

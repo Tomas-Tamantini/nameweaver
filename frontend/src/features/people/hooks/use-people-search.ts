@@ -110,4 +110,4 @@ function usePeopleSearch(): UsePeopleSearchResult {
   }
 }
 
-export default usePeopleSearch
+export { usePeopleSearch }
