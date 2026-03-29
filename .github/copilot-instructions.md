@@ -25,11 +25,19 @@
 
 ## Testing policy
 
-- Every code change should include focused validation:
-  - add/update the smallest relevant test when tests exist,
-  - run targeted tests first, then broader checks only if needed.
-- If no automated tests exist, provide a short manual verification checklist.
+- Automated tests are highly important. The vast majority of code changes must include or update tests.
 - Do not claim success without reporting what was validated.
+- Run targeted tests first, then broader checks only if needed.
+
+### Test pyramid
+
+- **Follow the test pyramid strictly**: prefer many fast unit tests at the base, few slow integration tests at the top.
+- **Unit tests** are the default. Cover logic, validation, edge cases, and error handling thoroughly with unit tests. They should be fast and isolated (use fakes/stubs/mocks for external dependencies).
+- **Integration tests** are expensive. Use them only to verify that real components wire together correctly:
+  - Test the happy path.
+  - Test at most one or two critical error/edge cases that cannot be covered by unit tests alone (e.g., database constraint violations, HTTP-level error responses).
+  - Do not duplicate error-case coverage that unit tests already provide.
+- When adding a new feature, write unit tests first. Add integration tests only for the wiring that unit tests cannot reach.
 
 ## Autonomy guardrails
 
