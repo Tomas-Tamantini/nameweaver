@@ -1,4 +1,4 @@
-import type { Person } from '@/features/people/models/person'
+import type { Person } from '@/features/people'
 
 let sequence = 0
 

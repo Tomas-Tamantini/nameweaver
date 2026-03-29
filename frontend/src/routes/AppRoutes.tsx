@@ -1,6 +1,5 @@
-import AddPersonPage from '@/features/people/pages/AddPersonPage'
-import PeoplePage from '@/features/people/pages/PeoplePage'
-import NotFoundPage from '@/pages/system/NotFoundPage'
+import { AddPersonPage, PeoplePage } from '@/features/people'
+import NotFoundPage from '@/pages/NotFoundPage'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 function AppRoutes() {
