@@ -29,7 +29,7 @@ describe('people-service', () => {
 
       const result = await getPeople()
 
-      expect(apiClient.get).toHaveBeenCalledWith('/people', {
+      expect(apiClient.get).toHaveBeenCalledWith('/people/', {
         params: {},
       })
       expect(result).toEqual(mockResponse)
@@ -44,7 +44,7 @@ describe('people-service', () => {
 
       const result = await getPeople({ name: 'Ada' })
 
-      expect(apiClient.get).toHaveBeenCalledWith('/people', {
+      expect(apiClient.get).toHaveBeenCalledWith('/people/', {
         params: { name: 'Ada' },
       })
       expect(result).toEqual(mockResponse)
@@ -59,7 +59,7 @@ describe('people-service', () => {
 
       const result = await getPeople({ description: 'mathematician' })
 
-      expect(apiClient.get).toHaveBeenCalledWith('/people', {
+      expect(apiClient.get).toHaveBeenCalledWith('/people/', {
         params: { description: 'mathematician' },
       })
       expect(result).toEqual(mockResponse)
@@ -104,7 +104,7 @@ describe('people-service', () => {
 
       const result = await createPerson(input)
 
-      expect(apiClient.post).toHaveBeenCalledWith('/people', input)
+      expect(apiClient.post).toHaveBeenCalledWith('/people/', input)
       expect(result).toEqual(mockResponse)
     })
 
