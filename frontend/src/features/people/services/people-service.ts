@@ -2,6 +2,8 @@ import { apiClient } from '@/lib/api'
 import type { PaginatedResponse } from '@/lib/pagination'
 import type { CreatePersonRequest, Person } from '../models/person'
 
+const BASE_URL = '/people/'
+
 export type GetPeopleQuery = {
   name?: string
   description?: string
@@ -10,7 +12,7 @@ export type GetPeopleQuery = {
 export async function getPeople(
   query: GetPeopleQuery = {},
 ): Promise<PaginatedResponse<Person>> {
-  return apiClient.get<PaginatedResponse<Person>>('/people/', {
+  return apiClient.get<PaginatedResponse<Person>>(BASE_URL, {
     params: query,
   })
 }
@@ -18,5 +20,5 @@ export async function getPeople(
 export async function createPerson(
   input: CreatePersonRequest,
 ): Promise<Person> {
-  return apiClient.post<Person>('/people/', input)
+  return apiClient.post<Person>(BASE_URL, input)
 }
