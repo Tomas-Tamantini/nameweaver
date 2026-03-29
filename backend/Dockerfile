@@ -13,5 +13,6 @@ COPY . /app
 WORKDIR /app
 RUN uv sync --frozen --no-cache
 
-# Run the application.
+# Run migrations then start the application.
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["/app/.venv/bin/fastapi", "run", "src/backend/app.py", "--port", "8000", "--host", "0.0.0.0"]
