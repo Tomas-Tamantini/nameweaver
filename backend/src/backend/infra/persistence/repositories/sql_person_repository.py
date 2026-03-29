@@ -1,6 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from backend.domain.exceptions import EntityNotFoundError
 from backend.domain.models.pagination import (
     PaginatedResponse,
     PaginationQueryParams,
@@ -23,6 +24,19 @@ class SqlPersonRepository(PersonRepository):
         self._session.add(model)
         self._session.flush()
         return model.to_domain()
+
+    def get_by_id(self, person_id: int) -> Person:
+        model = self._session.get(PersonModel, person_id)
+        if model is None:
+            raise EntityNotFoundError("Person", person_id)
+        return model.to_domain()
+
+    def delete(self, person_id: int) -> None:
+        model = self._session.get(PersonModel, person_id)
+        if model is None:
+            raise EntityNotFoundError("Person", person_id)
+        self._session.delete(model)
+        self._session.flush()
 
     def get_many(
         self,

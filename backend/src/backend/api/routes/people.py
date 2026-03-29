@@ -36,3 +36,14 @@ def get_people(
         total=result.total,
         items=[PersonResponse.from_domain(p) for p in result.items],
     )
+
+
+@people_router.get("/{person_id}")
+def get_person(person_id: int, repo: T_PersonRepository) -> PersonResponse:
+    person = repo.get_by_id(person_id)
+    return PersonResponse.from_domain(person)
+
+
+@people_router.delete("/{person_id}", status_code=HTTPStatus.NO_CONTENT)
+def delete_person(person_id: int, repo: T_PersonRepository) -> None:
+    repo.delete(person_id)

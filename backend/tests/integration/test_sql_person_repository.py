@@ -1,5 +1,6 @@
 import pytest
 
+from backend.domain.exceptions import EntityNotFoundError
 from backend.domain.models.pagination import PaginationQueryParams
 from backend.domain.models.person import FilterPeopleQueryParams, PersonBase
 from backend.infra.persistence.repositories.sql_person_repository import (
@@ -132,3 +133,42 @@ def test_get_many_filters_with_pagination(db_session):
     assert result.total == 5
     assert len(result.items) == 2
     assert result.items[0].name == "Alice 1"
+
+
+# ---------------------------------------------------------------------------
+# get_by_id
+# ---------------------------------------------------------------------------
+
+
+def test_get_by_id_returns_existing_person(db_session):
+    repo = _make_repo(db_session)
+    created = _create_person(repo)
+    found = repo.get_by_id(created.id)
+    assert found.id == created.id
+    assert found.name == created.name
+    assert found.description == created.description
+
+
+def test_get_by_id_raises_not_found_for_missing_id(db_session):
+    repo = _make_repo(db_session)
+    with pytest.raises(EntityNotFoundError, match="Person with id 999"):
+        repo.get_by_id(999)
+
+
+# ---------------------------------------------------------------------------
+# delete
+# ---------------------------------------------------------------------------
+
+
+def test_delete_removes_person(db_session):
+    repo = _make_repo(db_session)
+    created = _create_person(repo)
+    repo.delete(created.id)
+    with pytest.raises(EntityNotFoundError):
+        repo.get_by_id(created.id)
+
+
+def test_delete_raises_not_found_for_missing_id(db_session):
+    repo = _make_repo(db_session)
+    with pytest.raises(EntityNotFoundError, match="Person with id 999"):
+        repo.delete(999)

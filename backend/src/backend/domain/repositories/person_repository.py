@@ -14,6 +14,10 @@ from backend.domain.models.person import (
 class PersonRepository(Protocol):
     def create(self, person: PersonBase) -> Person: ...
 
+    def get_by_id(self, person_id: int) -> Person: ...
+
+    def delete(self, person_id: int) -> None: ...
+
     def get_many(
         self,
         pagination: PaginationQueryParams,

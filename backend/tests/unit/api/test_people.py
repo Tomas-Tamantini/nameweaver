@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
+from backend.domain.exceptions import EntityNotFoundError
 from backend.domain.models.pagination import (
     PaginatedResponse,
     PaginationQueryParams,
@@ -222,3 +223,78 @@ def test_get_people_delegates_combined_filters_to_repository(
             name="Ada", description="mathematician"
         ),
     )
+
+
+# ---------------------------------------------------------------------------
+# GET /people/{person_id}
+# ---------------------------------------------------------------------------
+
+
+def test_get_person_returns_ok(client, mock_person_repository, person):
+    mock_person_repository.get_by_id.return_value = person
+    response = client.get(f"/people/{person.id}")
+    assert response.status_code == HTTPStatus.OK
+
+
+def test_get_person_returns_person_from_repository(
+    client, mock_person_repository, person
+):
+    mock_person_repository.get_by_id.return_value = person
+    body = client.get(f"/people/{person.id}").json()
+    assert body == {
+        "id": person.id,
+        "name": person.name,
+        "description": person.description,
+    }
+
+
+def test_get_person_delegates_to_repository(
+    client, mock_person_repository, person
+):
+    mock_person_repository.get_by_id.return_value = person
+    client.get(f"/people/{person.id}")
+    mock_person_repository.get_by_id.assert_called_once_with(person.id)
+
+
+def test_get_person_not_found_returns_404(client, mock_person_repository):
+    mock_person_repository.get_by_id.side_effect = EntityNotFoundError(
+        "Person", 999
+    )
+    response = client.get("/people/999")
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert "Person with id 999 was not found" in response.json()["detail"]
+
+
+# ---------------------------------------------------------------------------
+# DELETE /people/{person_id}
+# ---------------------------------------------------------------------------
+
+
+def test_delete_person_returns_no_content(
+    client, mock_person_repository, person
+):
+    response = client.delete(f"/people/{person.id}")
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+
+def test_delete_person_delegates_to_repository(
+    client, mock_person_repository, person
+):
+    client.delete(f"/people/{person.id}")
+    mock_person_repository.delete.assert_called_once_with(person.id)
+
+
+def test_delete_person_not_found_returns_404(client, mock_person_repository):
+    mock_person_repository.delete.side_effect = EntityNotFoundError(
+        "Person", 999
+    )
+    response = client.delete("/people/999")
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert "Person with id 999 was not found" in response.json()["detail"]
+
+
+def test_delete_person_returns_empty_body(
+    client, mock_person_repository, person
+):
+    response = client.delete(f"/people/{person.id}")
+    assert response.content == b""
