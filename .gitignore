@@ -38,4 +38,5 @@ htmlcov/
 # TODO file
 TODO.md
 
-
+# Deployment secrets
+deploy-secrets.md
