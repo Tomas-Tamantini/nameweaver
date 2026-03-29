@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildPerson } from '@/test-utils/factories/person'
 import { usePeopleSearch } from './use-people-search'
 
-import type { Person } from '@/features/people/models/person'
+import type { Person } from '@/features/people/types/person'
 
 vi.mock('@/features/people/services/people-service', () => ({
   getPeople: vi.fn(),

@@ -2,7 +2,7 @@ import { apiClient } from '@/lib/api'
 import type { PaginatedResponse } from '@/lib/pagination'
 import { buildPerson } from '@/test-utils/factories/person'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Person } from '../models/person'
+import type { Person } from '../types/person'
 import { createPerson, getPeople } from './people-service'
 
 vi.mock('@/lib/api', () => ({

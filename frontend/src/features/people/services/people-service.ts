@@ -1,6 +1,6 @@
 import { apiClient } from '@/lib/api'
 import type { PaginatedResponse } from '@/lib/pagination'
-import type { CreatePersonRequest, Person } from '../models/person'
+import type { CreatePersonRequest, Person } from '../types/person'
 
 const BASE_URL = '/people/'
 

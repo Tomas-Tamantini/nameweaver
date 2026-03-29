@@ -5,7 +5,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-import type { Person } from '@/features/people/models/person'
+import type { Person } from '@/features/people/types/person'
 
 type PersonCardProps = {
   person: Person

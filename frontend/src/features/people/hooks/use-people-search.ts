@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { getPeople } from '@/features/people/services/people-service'
 
-import type { PeopleListState } from '@/features/people/models/people-list-state'
+import type { PeopleListState } from '@/features/people/types/people-list-state'
 
 function toPeopleListState(
   response: Awaited<ReturnType<typeof getPeople>>,

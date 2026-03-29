@@ -9,7 +9,7 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty'
 import { BugIcon } from 'lucide-react'
-import type { PeopleListState } from '../models/people-list-state'
+import type { PeopleListState } from '../types/people-list-state'
 import { PersonCard } from './PersonCard'
 import { PersonCardSkeleton } from './PersonCardSkeleton'
 

@@ -7,7 +7,7 @@ import { usePeopleSearch } from '@/features/people/hooks/use-people-search'
 import { buildPerson } from '@/test-utils/factories/person'
 import { PeoplePage } from './PeoplePage'
 
-import type { PeopleListState } from '@/features/people/models/people-list-state'
+import type { PeopleListState } from '@/features/people/types/people-list-state'
 
 vi.mock('@/features/people/hooks/use-people-search', () => ({
   usePeopleSearch: vi.fn(),

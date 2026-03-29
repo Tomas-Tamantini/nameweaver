@@ -3,8 +3,8 @@ export { AddPersonPage } from './pages/AddPersonPage'
 export { PeoplePage } from './pages/PeoplePage'
 
 // Models
-export type { PeopleListState } from './models/people-list-state'
-export type { CreatePersonRequest, Person } from './models/person'
+export type { PeopleListState } from './types/people-list-state'
+export type { CreatePersonRequest, Person } from './types/person'
 
 // Services
 export { createPerson, getPeople } from './services/people-service'
