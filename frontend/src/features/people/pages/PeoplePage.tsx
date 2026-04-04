@@ -2,10 +2,25 @@ import { Button } from '@/components/ui/button'
 import { PeopleList } from '@/features/people/components/PeopleList'
 import { PeopleToolbar } from '@/features/people/components/PeopleToolbar'
 import { usePeopleSearch } from '@/features/people/hooks/use-people-search'
+import { deletePerson } from '@/features/people/services/people-service'
+import { getApiErrorMessage } from '@/lib/api'
 import { Link } from 'react-router-dom'
+import { toast } from 'sonner'
 
 function PeoplePage() {
   const { query, state, onQueryChange, reloadPeople } = usePeopleSearch()
+
+  async function handleDeletePerson(id: number) {
+    try {
+      await deletePerson(id)
+      toast.success('Person deleted')
+      await reloadPeople()
+    } catch (error) {
+      toast.error(
+        getApiErrorMessage(error, 'Could not delete person. Please try again.'),
+      )
+    }
+  }
 
   return (
     <section className="space-y-4" aria-label="People page">
@@ -24,7 +39,11 @@ function PeoplePage() {
           </p>
         )}
       </div>
-      <PeopleList state={state} onRetry={reloadPeople} />
+      <PeopleList
+        state={state}
+        onRetry={reloadPeople}
+        onDeletePerson={handleDeletePerson}
+      />
     </section>
   )
 }

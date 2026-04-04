@@ -3,12 +3,13 @@ import type { PaginatedResponse } from '@/lib/pagination'
 import { buildPerson } from '@/test-utils/factories/person'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Person } from '../types/person'
-import { createPerson, getPeople } from './people-service'
+import { createPerson, deletePerson, getPeople } from './people-service'
 
 vi.mock('@/lib/api', () => ({
   apiClient: {
     get: vi.fn(),
     post: vi.fn(),
+    delete: vi.fn(),
   },
 }))
 
@@ -139,6 +140,27 @@ describe('people-service', () => {
       mockedApiClient.post.mockRejectedValue(error)
 
       await expect(createPerson(input)).rejects.toEqual(error)
+    })
+  })
+
+  describe('deletePerson', () => {
+    it('calls apiClient.delete with correct endpoint', async () => {
+      mockedApiClient.delete.mockResolvedValue(undefined)
+
+      await deletePerson(42)
+
+      expect(apiClient.delete).toHaveBeenCalledWith('/people/42/')
+    })
+
+    it('propagates errors from apiClient', async () => {
+      const error = {
+        code: 'NOT_FOUND',
+        message: 'Person not found',
+        status: 404,
+      }
+      mockedApiClient.delete.mockRejectedValue(error)
+
+      await expect(deletePerson(99)).rejects.toEqual(error)
     })
   })
 })

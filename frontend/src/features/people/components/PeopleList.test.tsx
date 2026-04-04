@@ -70,4 +70,22 @@ describe('PeopleList', () => {
     expect(screen.getByText(personB.description)).toBeInTheDocument()
     expect(screen.queryByText(/updated at:/i)).not.toBeInTheDocument()
   })
+
+  it('passes onDeletePerson to PersonCard delete buttons', () => {
+    const person = buildPerson()
+    const onDeletePerson = vi.fn()
+
+    render(
+      <PeopleList
+        state={{ status: 'success', total: 1, people: [person] }}
+        onDeletePerson={onDeletePerson}
+      />,
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', { name: `Delete ${person.name}` }),
+    )
+
+    expect(onDeletePerson).toHaveBeenCalledWith(person.id)
+  })
 })

@@ -16,9 +16,10 @@ import { PersonCardSkeleton } from './PersonCardSkeleton'
 type PeopleListProps = {
   state: PeopleListState
   onRetry?: () => void
+  onDeletePerson?: (id: number) => void
 }
 
-function PeopleList({ state, onRetry }: PeopleListProps) {
+function PeopleList({ state, onRetry, onDeletePerson }: PeopleListProps) {
   if (state.status === 'loading') {
     return (
       <div className="space-y-3">
@@ -64,7 +65,7 @@ function PeopleList({ state, onRetry }: PeopleListProps) {
   return (
     <div className="space-y-3">
       {state.people.map((person) => (
-        <PersonCard key={person.id} person={person} />
+        <PersonCard key={person.id} person={person} onDelete={onDeletePerson} />
       ))}
     </div>
   )

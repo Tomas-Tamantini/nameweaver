@@ -22,3 +22,7 @@ export async function createPerson(
 ): Promise<Person> {
   return apiClient.post<Person>(BASE_URL, input)
 }
+
+export async function deletePerson(id: number): Promise<void> {
+  return apiClient.delete(`${BASE_URL}${id}/`)
+}
