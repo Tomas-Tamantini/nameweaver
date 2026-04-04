@@ -149,7 +149,7 @@ describe('people-service', () => {
 
       await deletePerson(42)
 
-      expect(apiClient.delete).toHaveBeenCalledWith('/people/42/')
+      expect(apiClient.delete).toHaveBeenCalledWith('/people/42')
     })
 
     it('propagates errors from apiClient', async () => {

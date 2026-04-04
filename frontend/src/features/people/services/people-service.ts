@@ -24,5 +24,5 @@ export async function createPerson(
 }
 
 export async function deletePerson(id: number): Promise<void> {
-  return apiClient.delete(`${BASE_URL}${id}/`)
+  return apiClient.delete(`${BASE_URL}${id}`)
 }
