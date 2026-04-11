@@ -62,6 +62,29 @@ def test_create_user_with_invalid_field_lengths_returns_unprocessable_entity(
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
+@pytest.mark.parametrize(
+    "invalid_email",
+    [
+        "not-an-email",
+        "missing-at-sign.com",
+        "@no-local-part.com",
+        "spaces in@email.com",
+    ],
+)
+def test_create_user_with_invalid_email_format_returns_unprocessable_entity(
+    client, invalid_email
+):
+    response = client.post(
+        "/users",
+        json={
+            "username": "alice",
+            "email": invalid_email,
+            "password": "super-secret-password",
+        },
+    )
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
 def test_create_user_delegates_to_repository_with_hashed_password(
     client, mock_user_repository, create_user_payload
 ):

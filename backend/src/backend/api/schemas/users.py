@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from backend.domain.models.user import User
 
@@ -10,8 +10,8 @@ class CreateUserRequest(BaseModel):
         str, Field(min_length=1, max_length=100, examples=["alice"])
     ]
     email: Annotated[
-        str,
-        Field(min_length=3, max_length=254, examples=["alice@example.com"]),
+        EmailStr,
+        Field(max_length=254, examples=["alice@example.com"]),
     ]
     password: Annotated[
         str,
