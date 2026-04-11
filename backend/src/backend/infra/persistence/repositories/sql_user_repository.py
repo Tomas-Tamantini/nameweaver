@@ -29,3 +29,12 @@ class SqlUserRepository(UserRepository):
                 raise EntityAlreadyExistsError("User", "email") from exc
             raise
         return model.to_domain()
+
+    def get_by_username(self, username: str) -> User | None:
+        model = (
+            self._session
+            .query(UserModel)
+            .filter(UserModel.username == username)
+            .first()
+        )
+        return model.to_domain() if model else None

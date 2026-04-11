@@ -18,4 +18,5 @@ def mock_person_repository(person) -> MagicMock:
 def mock_user_repository(user) -> MagicMock:
     repo = MagicMock(spec=UserRepository)
     repo.create.return_value = user
+    repo.get_by_username.return_value = user
     return repo
