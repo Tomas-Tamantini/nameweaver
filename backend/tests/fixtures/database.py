@@ -1,4 +1,3 @@
-import os
 from collections.abc import Iterator
 
 import pytest
@@ -9,19 +8,16 @@ from sqlalchemy.orm import Session, sessionmaker
 from testcontainers.postgres import PostgresContainer
 
 from backend.infra.persistence.orm.base import Base
-from backend.settings import get_settings
 
 
 @pytest.fixture(scope="session")
 def db_engine():
     with PostgresContainer("postgres:17") as postgres:
         url = postgres.get_connection_url()
-        # Point settings to the container so Alembic migrations work
-        os.environ["DATABASE_URL"] = url
-        get_settings.cache_clear()
 
-        # Apply migrations (same path as production)
+        # Apply migrations pointing Alembic directly at the container
         alembic_cfg = Config("alembic.ini")
+        alembic_cfg.set_main_option("sqlalchemy.url", url)
         command.upgrade(alembic_cfg, "head")
 
         engine = create_engine(url)

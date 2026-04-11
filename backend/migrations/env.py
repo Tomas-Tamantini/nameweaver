@@ -12,8 +12,9 @@ from backend.settings import get_settings
 # access to the values within the .ini file in use.
 config = context.config
 
-# Override sqlalchemy.url from Settings (single source of truth)
-config.set_main_option("sqlalchemy.url", get_settings().DATABASE_URL)
+# Use pre-configured URL (e.g. from tests) or fall back to Settings.
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", get_settings().DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
