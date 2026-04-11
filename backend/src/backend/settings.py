@@ -10,6 +10,9 @@ class Settings(BaseSettings):
 
     ALLOWED_ORIGINS: str
     DATABASE_URL: str
+    JWT_SECRET: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 10080
 
 
 @cache
