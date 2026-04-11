@@ -1,0 +1,23 @@
+from http import HTTPStatus
+
+from fastapi import APIRouter
+
+from backend.api.dependencies.repositories import T_UserRepository
+from backend.api.schemas.users import CreateUserRequest, UserResponse
+from backend.domain.models.user import UserBase
+from backend.infra.security.password import hash_password
+
+users_router = APIRouter(prefix="/users", tags=["users"])
+
+
+@users_router.post("/", status_code=HTTPStatus.CREATED)
+def create_user(
+    body: CreateUserRequest, repo: T_UserRepository
+) -> UserResponse:
+    parsed = UserBase(
+        username=body.username,
+        email=body.email,
+        hashed_password=hash_password(body.password),
+    )
+    new_user = repo.create(parsed)
+    return UserResponse.from_domain(new_user)
