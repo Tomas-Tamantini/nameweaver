@@ -3,3 +3,12 @@ class EntityNotFoundError(Exception):
         self.entity_name = entity_name
         self.entity_id = entity_id
         super().__init__(f"{entity_name} with id {entity_id} was not found")
+
+
+class EntityAlreadyExistsError(Exception):
+    def __init__(self, entity_name: str, field_name: str):
+        self.entity_name = entity_name
+        self.field_name = field_name
+        super().__init__(
+            f"{entity_name} with this {field_name} already exists"
+        )

@@ -5,7 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.api.routes import all_routers
-from backend.domain.exceptions import EntityNotFoundError
+from backend.domain.exceptions import (
+    EntityAlreadyExistsError,
+    EntityNotFoundError,
+)
 from backend.settings import get_settings
 
 app = FastAPI()
@@ -26,6 +29,16 @@ def handle_entity_not_found(
 ) -> JSONResponse:
     return JSONResponse(
         status_code=HTTPStatus.NOT_FOUND,
+        content={"detail": str(exc)},
+    )
+
+
+@app.exception_handler(EntityAlreadyExistsError)
+def handle_entity_already_exists(
+    _request: object, exc: EntityAlreadyExistsError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=HTTPStatus.CONFLICT,
         content={"detail": str(exc)},
     )
 
