@@ -91,3 +91,20 @@ def test_get_by_email_returns_none_if_not_exists(db_session):
     repo = _make_repo(db_session)
     user = repo.get_by_email("nonexistent@example.com")
     assert user is None
+
+
+def test_get_by_id_returns_user_if_exists(db_session):
+    repo = _make_repo(db_session)
+    created = _create_user(repo)
+
+    user = repo.get_by_id(created.id)
+    assert user is not None
+    assert user.id == created.id
+    assert user.username == "alice"
+    assert user.email == "alice@example.com"
+
+
+def test_get_by_id_returns_none_if_not_exists(db_session):
+    repo = _make_repo(db_session)
+    user = repo.get_by_id(999)
+    assert user is None

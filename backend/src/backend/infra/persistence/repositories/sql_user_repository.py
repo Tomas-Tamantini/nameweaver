@@ -30,6 +30,15 @@ class SqlUserRepository(UserRepository):
             raise
         return model.to_domain()
 
+    def get_by_id(self, user_id: int) -> User | None:
+        model = (
+            self._session
+            .query(UserModel)
+            .filter(UserModel.id == user_id)
+            .first()
+        )
+        return model.to_domain() if model else None
+
     def get_by_username(self, username: str) -> User | None:
         model = (
             self._session
