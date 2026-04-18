@@ -24,6 +24,7 @@ services:
     environment:
       - ALLOWED_ORIGINS=http://localhost:3000,http://localhost
       - DATABASE_URL=postgresql://nameweaver:nameweaver@db:5432/nameweaver
+      - JWT_SECRET=supersecretkey
     depends_on:
       db:
         condition: service_healthy
