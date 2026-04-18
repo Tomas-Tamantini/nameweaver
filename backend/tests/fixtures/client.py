@@ -7,6 +7,9 @@ from backend.api.dependencies.repositories import (
     get_person_repository,
     get_user_repository,
 )
+from backend.api.dependencies.services import (
+    get_password_hasher,
+)
 from backend.app import create_app
 from backend.infra.persistence.database import get_db_session
 from backend.settings import Settings
@@ -22,7 +25,9 @@ def _test_settings() -> Settings:
 
 @pytest.fixture
 def client(
-    mock_person_repository, mock_user_repository
+    mock_person_repository,
+    mock_user_repository,
+    mock_password_hasher,
 ) -> Iterator[TestClient]:
     test_app = create_app(_test_settings())
     test_app.dependency_overrides[get_person_repository] = lambda: (
@@ -30,6 +35,9 @@ def client(
     )
     test_app.dependency_overrides[get_user_repository] = lambda: (
         mock_user_repository
+    )
+    test_app.dependency_overrides[get_password_hasher] = lambda: (
+        mock_password_hasher
     )
     yield TestClient(test_app)
     test_app.dependency_overrides.clear()

@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import pytest
-from pwdlib import PasswordHash
 
 from backend.domain.exceptions import EntityAlreadyExistsError
 from backend.domain.models.user import UserBase
@@ -86,17 +85,18 @@ def test_create_user_with_invalid_email_format_returns_unprocessable_entity(
 
 
 def test_create_user_delegates_to_repository_with_hashed_password(
-    client, mock_user_repository, create_user_payload
+    client, mock_user_repository, mock_password_hasher, create_user_payload
 ):
     client.post("/users", json=create_user_payload)
 
     called_with: UserBase = mock_user_repository.create.call_args.args[0]
     assert called_with.username == create_user_payload["username"]
     assert called_with.email == create_user_payload["email"]
-    assert called_with.hashed_password != create_user_payload["password"]
-    assert PasswordHash.recommended().verify(
-        create_user_payload["password"], called_with.hashed_password
+    mock_password_hasher.hash.assert_called_once_with(
+        create_user_payload["password"]
     )
+    expected_hash = f"hashed-{create_user_payload['password']}"
+    assert called_with.hashed_password == expected_hash
 
 
 def test_create_user_returns_user_without_hashed_password(
