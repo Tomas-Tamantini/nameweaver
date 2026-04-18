@@ -4,6 +4,17 @@ import pytest
 
 from backend.domain.security.password_hasher import PasswordHasher
 from backend.domain.security.token_service import TokenService
+from backend.domain.services.auth_service import AuthService, TokenPair
+
+
+@pytest.fixture
+def mock_auth_service() -> MagicMock:
+    service = MagicMock(spec=AuthService)
+    service.login.return_value = TokenPair(
+        access_token="test-access-token",
+        refresh_token="test-refresh-token",
+    )
+    return service
 
 
 @pytest.fixture

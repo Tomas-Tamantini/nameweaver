@@ -8,6 +8,7 @@ from backend.api.dependencies.repositories import (
     get_user_repository,
 )
 from backend.api.dependencies.services import (
+    get_auth_service,
     get_password_hasher,
 )
 from backend.app import create_app
@@ -27,6 +28,7 @@ def _test_settings() -> Settings:
 def client(
     mock_person_repository,
     mock_user_repository,
+    mock_auth_service,
     mock_password_hasher,
 ) -> Iterator[TestClient]:
     test_app = create_app(_test_settings())
@@ -36,6 +38,7 @@ def client(
     test_app.dependency_overrides[get_user_repository] = lambda: (
         mock_user_repository
     )
+    test_app.dependency_overrides[get_auth_service] = lambda: mock_auth_service
     test_app.dependency_overrides[get_password_hasher] = lambda: (
         mock_password_hasher
     )
