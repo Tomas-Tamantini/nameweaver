@@ -17,3 +17,8 @@ class EntityAlreadyExistsError(Exception):
 class InvalidCredentialsError(Exception):
     def __init__(self) -> None:
         super().__init__("Invalid username/email or password")
+
+
+class InvalidTokenError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Invalid or expired token")
