@@ -12,3 +12,8 @@ class EntityAlreadyExistsError(Exception):
         super().__init__(
             f"{entity_name} with this {field_name} already exists"
         )
+
+
+class InvalidCredentialsError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Invalid username/email or password")
