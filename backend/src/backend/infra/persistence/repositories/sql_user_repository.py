@@ -38,3 +38,12 @@ class SqlUserRepository(UserRepository):
             .first()
         )
         return model.to_domain() if model else None
+
+    def get_by_email(self, email: str) -> User | None:
+        model = (
+            self._session
+            .query(UserModel)
+            .filter(UserModel.email == email)
+            .first()
+        )
+        return model.to_domain() if model else None
