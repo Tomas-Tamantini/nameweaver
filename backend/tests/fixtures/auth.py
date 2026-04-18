@@ -14,6 +14,10 @@ def mock_auth_service() -> MagicMock:
         access_token="test-access-token",
         refresh_token="test-refresh-token",
     )
+    service.refresh.return_value = TokenPair(
+        access_token="new-access-token",
+        refresh_token="original-refresh-token",
+    )
     return service
 
 

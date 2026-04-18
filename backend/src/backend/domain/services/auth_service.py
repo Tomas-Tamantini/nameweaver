@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
-from backend.domain.exceptions import InvalidCredentialsError
+from backend.domain.exceptions import (
+    InvalidCredentialsError,
+    InvalidTokenError,
+)
 from backend.domain.repositories.user_repository import UserRepository
 from backend.domain.security.password_hasher import PasswordHasher
 from backend.domain.security.token_service import TokenService
@@ -46,4 +49,24 @@ class AuthService:
         )
         return TokenPair(
             access_token=access_token, refresh_token=refresh_token
+        )
+
+    def refresh(self, refresh_token: str) -> TokenPair:
+        payload = self._token_service.decode_token(refresh_token)
+
+        if payload.get("type") != "refresh":
+            raise InvalidTokenError()
+        try:
+            user_id = int(payload.get("sub", ""))  # type: ignore
+        except ValueError as err:
+            raise InvalidTokenError() from err
+        if not self._user_repo.get_by_id(user_id):
+            raise InvalidCredentialsError()
+
+        new_access_token = self._token_service.create_access_token(
+            user_id=user_id,
+        )
+        return TokenPair(
+            access_token=new_access_token,
+            refresh_token=refresh_token,
         )

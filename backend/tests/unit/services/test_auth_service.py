@@ -2,7 +2,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from backend.domain.exceptions import InvalidCredentialsError
+from backend.domain.exceptions import (
+    InvalidCredentialsError,
+    InvalidTokenError,
+)
 from backend.domain.models.user import User
 from backend.domain.repositories.user_repository import UserRepository
 from backend.domain.security.password_hasher import PasswordHasher
@@ -113,3 +116,93 @@ def test_login_calls_verify_with_correct_args(
     mock_hasher.verify.assert_called_once_with(
         "my-password", user.hashed_password
     )
+
+
+# --- refresh tests ---
+
+
+def test_refresh_returns_new_access_token_and_same_refresh(
+    service, mock_tokens, mock_repo, user
+):
+    mock_tokens.decode_token.return_value = {
+        "sub": "1",
+        "type": "refresh",
+    }
+    mock_repo.get_by_id.return_value = user
+    mock_tokens.create_access_token.return_value = "new-access"
+
+    result = service.refresh("original-refresh-token")
+
+    assert isinstance(result, TokenPair)
+    assert result.access_token == "new-access"
+    assert result.refresh_token == "original-refresh-token"
+
+
+def test_refresh_delegates_decode(service, mock_tokens, mock_repo, user):
+    mock_tokens.decode_token.return_value = {
+        "sub": "1",
+        "type": "refresh",
+    }
+    mock_repo.get_by_id.return_value = user
+
+    service.refresh("the-token")
+
+    mock_tokens.decode_token.assert_called_once_with("the-token")
+
+
+def test_refresh_creates_access_token_for_user(
+    service, mock_tokens, mock_repo, user
+):
+    mock_tokens.decode_token.return_value = {
+        "sub": "42",
+        "type": "refresh",
+    }
+    mock_repo.get_by_id.return_value = user
+
+    service.refresh("tok")
+
+    mock_tokens.create_access_token.assert_called_once_with(
+        user_id=42,
+    )
+
+
+def test_refresh_does_not_create_new_refresh_token(
+    service, mock_tokens, mock_repo, user
+):
+    mock_tokens.decode_token.return_value = {
+        "sub": "1",
+        "type": "refresh",
+    }
+    mock_repo.get_by_id.return_value = user
+
+    service.refresh("tok")
+
+    mock_tokens.create_refresh_token.assert_not_called()
+
+
+def test_refresh_with_access_token_raises(service, mock_tokens):
+    mock_tokens.decode_token.return_value = {
+        "sub": "1",
+        "type": "access",
+    }
+
+    with pytest.raises(InvalidTokenError):
+        service.refresh("an-access-token")
+
+
+def test_refresh_with_invalid_token_raises(service, mock_tokens):
+    mock_tokens.decode_token.side_effect = InvalidTokenError()
+
+    with pytest.raises(InvalidTokenError):
+        service.refresh("garbage")
+
+
+def test_refresh_with_deleted_user_raises(service, mock_tokens, mock_repo):
+    mock_tokens.decode_token.return_value = {
+        "sub": "999",
+        "type": "refresh",
+    }
+    mock_repo.get_by_id.return_value = None
+
+    with pytest.raises(InvalidCredentialsError):
+        service.refresh("tok")
