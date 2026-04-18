@@ -9,6 +9,7 @@ from backend.domain.exceptions import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
     InvalidCredentialsError,
+    InvalidTokenError,
 )
 from backend.settings import Settings, get_settings
 
@@ -49,6 +50,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @created_app.exception_handler(InvalidCredentialsError)
     def handle_invalid_credentials(
         _request: object, exc: InvalidCredentialsError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            content={"detail": str(exc)},
+        )
+
+    @created_app.exception_handler(InvalidTokenError)
+    def handle_invalid_token(
+        _request: object, exc: InvalidTokenError
     ) -> JSONResponse:
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED,
