@@ -51,15 +51,12 @@ class AuthService:
             access_token=access_token, refresh_token=refresh_token
         )
 
-    def refresh(self, refresh_token: str) -> TokenPair:
-        payload = self._token_service.decode_token(refresh_token)
+    def get_user_id_from_access_token(self, token: str) -> int:
+        return self._extract_user_id(token, expected_type="access")
 
-        if payload.get("type") != "refresh":
-            raise InvalidTokenError()
-        try:
-            user_id = int(payload.get("sub", ""))  # type: ignore
-        except ValueError as err:
-            raise InvalidTokenError() from err
+    def refresh(self, refresh_token: str) -> TokenPair:
+        user_id = self._extract_user_id(refresh_token, expected_type="refresh")
+
         if not self._user_repo.get_by_id(user_id):
             raise InvalidCredentialsError()
 
@@ -70,3 +67,12 @@ class AuthService:
             access_token=new_access_token,
             refresh_token=refresh_token,
         )
+
+    def _extract_user_id(self, token: str, *, expected_type: str) -> int:
+        payload = self._token_service.decode_token(token)
+        if payload.get("type") != expected_type:
+            raise InvalidTokenError()
+        try:
+            return int(payload["sub"])  # type: ignore[arg-type]
+        except (KeyError, ValueError, TypeError) as err:
+            raise InvalidTokenError() from err

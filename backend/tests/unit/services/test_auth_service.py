@@ -206,3 +206,68 @@ def test_refresh_with_deleted_user_raises(service, mock_tokens, mock_repo):
 
     with pytest.raises(InvalidCredentialsError):
         service.refresh("tok")
+
+
+# --- get_user_id_from_access_token tests ---
+
+
+def test_get_user_id_from_access_token_returns_user_id(service, mock_tokens):
+    mock_tokens.decode_token.return_value = {
+        "sub": "42",
+        "type": "access",
+    }
+
+    assert service.get_user_id_from_access_token("tok") == 42
+
+
+def test_get_user_id_from_access_token_delegates_decode(service, mock_tokens):
+    mock_tokens.decode_token.return_value = {
+        "sub": "1",
+        "type": "access",
+    }
+
+    service.get_user_id_from_access_token("my-token")
+
+    mock_tokens.decode_token.assert_called_once_with("my-token")
+
+
+def test_get_user_id_from_access_token_rejects_refresh_token(
+    service, mock_tokens
+):
+    mock_tokens.decode_token.return_value = {
+        "sub": "1",
+        "type": "refresh",
+    }
+
+    with pytest.raises(InvalidTokenError):
+        service.get_user_id_from_access_token("refresh-tok")
+
+
+def test_get_user_id_from_access_token_raises_when_sub_missing(
+    service, mock_tokens
+):
+    mock_tokens.decode_token.return_value = {"type": "access"}
+
+    with pytest.raises(InvalidTokenError):
+        service.get_user_id_from_access_token("bad-tok")
+
+
+def test_get_user_id_from_access_token_raises_when_sub_not_numeric(
+    service, mock_tokens
+):
+    mock_tokens.decode_token.return_value = {
+        "sub": "not-a-number",
+        "type": "access",
+    }
+
+    with pytest.raises(InvalidTokenError):
+        service.get_user_id_from_access_token("bad-tok")
+
+
+def test_get_user_id_from_access_token_raises_on_invalid_token(
+    service, mock_tokens
+):
+    mock_tokens.decode_token.side_effect = InvalidTokenError()
+
+    with pytest.raises(InvalidTokenError):
+        service.get_user_id_from_access_token("garbage")

@@ -298,3 +298,24 @@ def test_delete_person_returns_empty_body(
 ):
     response = client.delete(f"/people/{person.id}")
     assert response.content == b""
+
+
+# ---------------------------------------------------------------------------
+# Authentication required
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("method", "url"),
+    [
+        ("POST", "/people"),
+        ("GET", "/people"),
+        ("GET", "/people/1"),
+        ("DELETE", "/people/1"),
+    ],
+)
+def test_unauthenticated_request_returns_401(
+    unauthenticated_client, method, url
+):
+    response = unauthenticated_client.request(method, url)
+    assert response.status_code == HTTPStatus.UNAUTHORIZED

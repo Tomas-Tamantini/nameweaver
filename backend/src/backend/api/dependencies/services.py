@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 
 from backend.api.dependencies.repositories import get_user_repository
@@ -10,6 +11,8 @@ from backend.domain.security.token_service import TokenService
 from backend.domain.services.auth_service import AuthService
 from backend.infra.security.token import JwtTokenService
 from backend.settings import Settings, get_settings
+
+_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_password_hasher() -> PasswordHasher:
@@ -35,5 +38,13 @@ def get_auth_service(
     return AuthService(repo, password_hasher, token_service)
 
 
+def get_current_user_id(
+    token: str = Depends(_oauth2_scheme),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> int:
+    return auth_service.get_user_id_from_access_token(token)
+
+
 T_AuthService = Annotated[AuthService, Depends(get_auth_service)]
 T_PasswordHasher = Annotated[PasswordHasher, Depends(get_password_hasher)]
+T_CurrentUserId = Annotated[int, Depends(get_current_user_id)]

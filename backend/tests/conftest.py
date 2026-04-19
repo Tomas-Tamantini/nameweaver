@@ -3,7 +3,11 @@ from tests.fixtures.auth import (
     mock_password_hasher,
     mock_token_service,
 )
-from tests.fixtures.client import client, integration_client
+from tests.fixtures.client import (
+    client,
+    integration_client,
+    unauthenticated_client,
+)
 from tests.fixtures.database import db_engine, db_session
 from tests.fixtures.people import create_person_payload, person, person_base
 from tests.fixtures.repositories import (
@@ -17,6 +21,7 @@ __all__ = [
     "db_engine",
     "db_session",
     "integration_client",
+    "unauthenticated_client",
     "create_person_payload",
     "mock_auth_service",
     "mock_password_hasher",
