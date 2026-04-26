@@ -74,9 +74,7 @@ function AddPersonPage() {
       <Card>
         <CardHeader>
           <CardTitle>Person details</CardTitle>
-          <CardDescription>
-            Add basic context so this person is easier to remember later.
-          </CardDescription>
+          <CardDescription>Add basic context.</CardDescription>
         </CardHeader>
 
         <CardContent>
