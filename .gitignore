@@ -35,8 +35,9 @@ lerna-debug.log*
 coverage/
 htmlcov/
 
-# TODO file
+# Planning
 TODO.md
+plan/
 
 # Deployment secrets
 deploy-secrets.md
