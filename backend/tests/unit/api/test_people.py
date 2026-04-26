@@ -59,6 +59,7 @@ def test_create_person_delegates_to_repository(
         PersonBase(
             name=create_person_payload["name"],
             description=create_person_payload["description"],
+            user_id=1,
         )
     )
 
@@ -104,8 +105,18 @@ def test_get_people_returns_items_from_repository(
     client, mock_person_repository
 ):
     people = [
-        Person(id=1, name="Ada Lovelace", description="mathematician"),
-        Person(id=2, name="Grace Hopper", description="computer scientist"),
+        Person(
+            id=1,
+            name="Ada Lovelace",
+            description="mathematician",
+            user_id=1,
+        ),
+        Person(
+            id=2,
+            name="Grace Hopper",
+            description="computer scientist",
+            user_id=1,
+        ),
     ]
     mock_person_repository.get_many.return_value = _paginated(*people)
     body = client.get("/people").json()

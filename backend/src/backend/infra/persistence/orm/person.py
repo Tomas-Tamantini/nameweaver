@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import func
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.domain.models.person import Person
@@ -13,9 +13,15 @@ class PersonModel(Base):
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     name: Mapped[str]
     description: Mapped[str]
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(
         init=False, server_default=func.now()
     )
 
     def to_domain(self) -> Person:
-        return Person(id=self.id, name=self.name, description=self.description)
+        return Person(
+            id=self.id,
+            name=self.name,
+            description=self.description,
+            user_id=self.user_id,
+        )

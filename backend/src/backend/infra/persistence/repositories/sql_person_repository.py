@@ -20,7 +20,11 @@ class SqlPersonRepository(PersonRepository):
         self._session = session
 
     def create(self, person: PersonBase) -> Person:
-        model = PersonModel(name=person.name, description=person.description)
+        model = PersonModel(
+            name=person.name,
+            description=person.description,
+            user_id=person.user_id,
+        )
         self._session.add(model)
         self._session.flush()
         return model.to_domain()

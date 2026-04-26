@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class PersonBase:
     name: str
     description: str
+    user_id: int
 
 
 @dataclass(frozen=True)

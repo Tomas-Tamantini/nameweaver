@@ -14,6 +14,7 @@ from backend.api.dependencies.services import (
 )
 from backend.app import create_app
 from backend.infra.persistence.database import get_db_session
+from backend.infra.persistence.orm.user import UserModel
 from backend.settings import Settings
 
 
@@ -67,8 +68,18 @@ def unauthenticated_client(
 @pytest.fixture
 def integration_client(db_session) -> Iterator[TestClient]:
     test_app = create_app(_test_settings())
+    integration_user = UserModel(
+        username="integration-user",
+        email="integration-user@example.com",
+        hashed_password="integration-password-hash",
+    )
+    db_session.add(integration_user)
+    db_session.flush()
+
     test_app.dependency_overrides[get_db_session] = lambda: db_session
-    test_app.dependency_overrides[get_current_user_id] = lambda: 1
+    test_app.dependency_overrides[get_current_user_id] = lambda: (
+        integration_user.id
+    )
     with TestClient(test_app) as test_client:
         yield test_client
     test_app.dependency_overrides.clear()

@@ -15,6 +15,13 @@ from backend.domain.models.person import PersonBase
 
 people_router = APIRouter(prefix="/people", tags=["people"])
 
+# TODO: Relate people to users, in steps:
+# 1. Add user_id or owner_id to the domain model and sqlalchemy model
+# 2. Run migration
+# 3. Allow only owner to see/edit/delete their people - Implement this logic
+#    in a service layer, so the repository only handles data access, not
+#    business logic.
+
 
 @people_router.post("/", status_code=HTTPStatus.CREATED)
 def create_person(
@@ -22,7 +29,11 @@ def create_person(
     repo: T_PersonRepository,
     user_id: T_CurrentUserId,
 ) -> PersonResponse:
-    parsed = PersonBase(name=body.name, description=body.description)
+    parsed = PersonBase(
+        name=body.name,
+        description=body.description,
+        user_id=user_id,
+    )
     new_person = repo.create(parsed)
     return PersonResponse.from_domain(new_person)
 
