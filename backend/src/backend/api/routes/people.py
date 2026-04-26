@@ -3,8 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from backend.api.dependencies.repositories import T_PersonRepository
-from backend.api.dependencies.services import T_CurrentUserId
+from backend.api.dependencies.services import T_CurrentUserId, T_PersonService
 from backend.api.schemas.people import (
     CreatePersonRequest,
     GetPeopleQueryParams,
@@ -15,37 +14,30 @@ from backend.domain.models.person import PersonBase
 
 people_router = APIRouter(prefix="/people", tags=["people"])
 
-# TODO: Relate people to users, in steps:
-# 1. Add user_id or owner_id to the domain model and sqlalchemy model
-# 2. Run migration
-# 3. Allow only owner to see/edit/delete their people - Implement this logic
-#    in a service layer, so the repository only handles data access, not
-#    business logic.
-
 
 @people_router.post("/", status_code=HTTPStatus.CREATED)
 def create_person(
     body: CreatePersonRequest,
-    repo: T_PersonRepository,
+    service: T_PersonService,
     user_id: T_CurrentUserId,
 ) -> PersonResponse:
-    parsed = PersonBase(
-        name=body.name,
-        description=body.description,
-        user_id=user_id,
+    new_person = service.create(
+        PersonBase(
+            name=body.name, description=body.description, user_id=user_id
+        )
     )
-    new_person = repo.create(parsed)
     return PersonResponse.from_domain(new_person)
 
 
 @people_router.get("/")
 def get_people(
     query_params: Annotated[GetPeopleQueryParams, Query()],
-    repo: T_PersonRepository,
+    service: T_PersonService,
     user_id: T_CurrentUserId,
 ) -> PaginatedResponse[PersonResponse]:
-    result = repo.get_many(
-        pagination=query_params.pagination(), filters=query_params.filters()
+    result = service.get_many(
+        pagination=query_params.pagination(),
+        filters=query_params.filters(user_id=user_id),
     )
     return PaginatedResponse(
         total=result.total,
@@ -55,14 +47,14 @@ def get_people(
 
 @people_router.get("/{person_id}")
 def get_person(
-    person_id: int, repo: T_PersonRepository, user_id: T_CurrentUserId
+    person_id: int, service: T_PersonService, user_id: T_CurrentUserId
 ) -> PersonResponse:
-    person = repo.get_by_id(person_id)
+    person = service.get_by_id(user_id=user_id, person_id=person_id)
     return PersonResponse.from_domain(person)
 
 
 @people_router.delete("/{person_id}", status_code=HTTPStatus.NO_CONTENT)
 def delete_person(
-    person_id: int, repo: T_PersonRepository, user_id: T_CurrentUserId
+    person_id: int, service: T_PersonService, user_id: T_CurrentUserId
 ) -> None:
-    repo.delete(person_id)
+    service.delete(user_id=user_id, person_id=person_id)

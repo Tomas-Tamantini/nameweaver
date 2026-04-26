@@ -3,14 +3,12 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.api.dependencies.repositories import (
-    get_person_repository,
-    get_user_repository,
-)
+from backend.api.dependencies.repositories import get_user_repository
 from backend.api.dependencies.services import (
     get_auth_service,
     get_current_user_id,
     get_password_hasher,
+    get_person_service,
 )
 from backend.app import create_app
 from backend.infra.persistence.database import get_db_session
@@ -28,14 +26,14 @@ def _test_settings() -> Settings:
 
 @pytest.fixture
 def client(
-    mock_person_repository,
+    mock_person_service,
     mock_user_repository,
     mock_auth_service,
     mock_password_hasher,
 ) -> Iterator[TestClient]:
     test_app = create_app(_test_settings())
-    test_app.dependency_overrides[get_person_repository] = lambda: (
-        mock_person_repository
+    test_app.dependency_overrides[get_person_service] = lambda: (
+        mock_person_service
     )
     test_app.dependency_overrides[get_user_repository] = lambda: (
         mock_user_repository
@@ -51,12 +49,11 @@ def client(
 
 @pytest.fixture
 def unauthenticated_client(
-    mock_person_repository,
-    mock_user_repository,
+    mock_person_service, mock_user_repository
 ) -> Iterator[TestClient]:
     test_app = create_app(_test_settings())
-    test_app.dependency_overrides[get_person_repository] = lambda: (
-        mock_person_repository
+    test_app.dependency_overrides[get_person_service] = lambda: (
+        mock_person_service
     )
     test_app.dependency_overrides[get_user_repository] = lambda: (
         mock_user_repository

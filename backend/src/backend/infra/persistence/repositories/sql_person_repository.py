@@ -49,6 +49,9 @@ class SqlPersonRepository(PersonRepository):
     ) -> PaginatedResponse[Person]:
         query = select(PersonModel)
 
+        if filters.user_id is not None:
+            query = query.where(PersonModel.user_id == filters.user_id)
+
         if filters.name:
             query = query.where(PersonModel.name.icontains(filters.name))
         if filters.description:

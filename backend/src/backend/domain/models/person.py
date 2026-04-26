@@ -17,3 +17,4 @@ class Person(PersonBase):
 class FilterPeopleQueryParams:
     name: str | None
     description: str | None
+    user_id: int | None

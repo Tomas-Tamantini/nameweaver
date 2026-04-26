@@ -8,8 +8,6 @@ from backend.infra.persistence.repositories.sql_person_repository import (
     SqlPersonRepository,
 )
 
-pytestmark = pytest.mark.integration
-
 
 def _make_repo(db_session):
     return SqlPersonRepository(db_session)
@@ -37,6 +35,7 @@ def _create_person(
     )
 
 
+@pytest.mark.integration
 def test_create_returns_person_with_generated_id(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -47,6 +46,7 @@ def test_create_returns_person_with_generated_id(db_session):
     assert person.user_id == user.id
 
 
+@pytest.mark.integration
 def test_create_sequential_ids(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -55,16 +55,19 @@ def test_create_sequential_ids(db_session):
     assert second.id == first.id + 1
 
 
+@pytest.mark.integration
 def test_get_many_empty_table_returns_zero_total(db_session):
     repo = _make_repo(db_session)
+    user = _create_user(db_session)
     result = repo.get_many(
         PaginationQueryParams(),
-        FilterPeopleQueryParams(name=None, description=None),
+        FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
     )
     assert result.total == 0
     assert result.items == []
 
 
+@pytest.mark.integration
 def test_get_many_returns_all_created_people(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -72,12 +75,65 @@ def test_get_many_returns_all_created_people(db_session):
     _create_person(repo, user_id=user.id, name="Bob")
     result = repo.get_many(
         PaginationQueryParams(),
-        FilterPeopleQueryParams(name=None, description=None),
+        FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
     )
     assert result.total == 2
     assert len(result.items) == 2
 
 
+@pytest.mark.integration
+def test_get_many_without_user_id_returns_people_from_all_users(db_session):
+    repo = _make_repo(db_session)
+    user_1 = _create_user(db_session)
+    user_2 = UserModel(
+        username="repo-user-2",
+        email="repo-user-2@example.com",
+        hashed_password="repo-hash-2",
+    )
+    db_session.add(user_2)
+    db_session.flush()
+
+    _create_person(repo, user_id=user_1.id, name="Alice")
+    _create_person(repo, user_id=user_2.id, name="Bob")
+
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name=None, description=None, user_id=None),
+    )
+
+    assert result.total == 2
+    assert {person.name for person in result.items} == {"Alice", "Bob"}
+
+
+@pytest.mark.integration
+def test_get_many_with_user_id_filters_to_single_user(db_session):
+    repo = _make_repo(db_session)
+    user_1 = _create_user(db_session)
+    user_2 = UserModel(
+        username="repo-user-3",
+        email="repo-user-3@example.com",
+        hashed_password="repo-hash-3",
+    )
+    db_session.add(user_2)
+    db_session.flush()
+
+    _create_person(repo, user_id=user_1.id, name="Alice")
+    _create_person(repo, user_id=user_2.id, name="Bob")
+
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(
+            name=None,
+            description=None,
+            user_id=user_1.id,
+        ),
+    )
+
+    assert result.total == 1
+    assert result.items[0].name == "Alice"
+
+
+@pytest.mark.integration
 def test_get_many_pagination_offset_and_limit(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -85,25 +141,27 @@ def test_get_many_pagination_offset_and_limit(db_session):
         _create_person(repo, user_id=user.id, name=f"Person {i}")
     result = repo.get_many(
         PaginationQueryParams(offset=2, limit=2),
-        FilterPeopleQueryParams(name=None, description=None),
+        FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
     )
     assert result.total == 5
     assert len(result.items) == 2
     assert result.items[0].name == "Person 2"
 
 
+@pytest.mark.integration
 def test_get_many_limit_exceeding_total_returns_remaining(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
     _create_person(repo, user_id=user.id, name="Only One")
     result = repo.get_many(
         PaginationQueryParams(offset=0, limit=10),
-        FilterPeopleQueryParams(name=None, description=None),
+        FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
     )
     assert result.total == 1
     assert len(result.items) == 1
 
 
+@pytest.mark.integration
 def test_get_many_filter_by_name_case_insensitive(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -112,12 +170,13 @@ def test_get_many_filter_by_name_case_insensitive(db_session):
     _create_person(repo, user_id=user.id, name="Grace Hopper")
     result = repo.get_many(
         PaginationQueryParams(),
-        FilterPeopleQueryParams(name="al", description=None),
+        FilterPeopleQueryParams(name="al", description=None, user_id=user.id),
     )
     assert result.total == 1
     assert result.items[0].name == "Alan Turing"
 
 
+@pytest.mark.integration
 def test_get_many_filter_by_description_case_insensitive(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -135,12 +194,15 @@ def test_get_many_filter_by_description_case_insensitive(db_session):
     )
     result = repo.get_many(
         PaginationQueryParams(),
-        FilterPeopleQueryParams(name=None, description="english"),
+        FilterPeopleQueryParams(
+            name=None, description="english", user_id=user.id
+        ),
     )
     assert result.total == 1
     assert result.items[0].name == "Ada"
 
 
+@pytest.mark.integration
 def test_get_many_filter_by_name_and_description(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -164,12 +226,15 @@ def test_get_many_filter_by_name_and_description(db_session):
     )
     result = repo.get_many(
         PaginationQueryParams(),
-        FilterPeopleQueryParams(name="al", description="computer scientist"),
+        FilterPeopleQueryParams(
+            name="al", description="computer scientist", user_id=user.id
+        ),
     )
     assert result.total == 1
     assert result.items[0].name == "Alan"
 
 
+@pytest.mark.integration
 def test_get_many_filters_with_pagination(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -178,7 +243,9 @@ def test_get_many_filters_with_pagination(db_session):
     _create_person(repo, user_id=user.id, name="Bob")
     result = repo.get_many(
         PaginationQueryParams(offset=1, limit=2),
-        FilterPeopleQueryParams(name="alice", description=None),
+        FilterPeopleQueryParams(
+            name="alice", description=None, user_id=user.id
+        ),
     )
     assert result.total == 5
     assert len(result.items) == 2
@@ -190,6 +257,7 @@ def test_get_many_filters_with_pagination(db_session):
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.integration
 def test_get_by_id_returns_existing_person(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -201,6 +269,7 @@ def test_get_by_id_returns_existing_person(db_session):
     assert found.user_id == created.user_id
 
 
+@pytest.mark.integration
 def test_get_by_id_raises_not_found_for_missing_id(db_session):
     repo = _make_repo(db_session)
     with pytest.raises(EntityNotFoundError, match="Person with id 999"):
@@ -212,6 +281,7 @@ def test_get_by_id_raises_not_found_for_missing_id(db_session):
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.integration
 def test_delete_removes_person(db_session):
     repo = _make_repo(db_session)
     user = _create_user(db_session)
@@ -221,6 +291,7 @@ def test_delete_removes_person(db_session):
         repo.get_by_id(created.id)
 
 
+@pytest.mark.integration
 def test_delete_raises_not_found_for_missing_id(db_session):
     repo = _make_repo(db_session)
     with pytest.raises(EntityNotFoundError, match="Person with id 999"):

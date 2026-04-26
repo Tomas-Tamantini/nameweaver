@@ -2,6 +2,12 @@ from http import HTTPStatus
 
 import pytest
 
+from backend.domain.models.person import PersonBase
+from backend.infra.persistence.orm.user import UserModel
+from backend.infra.persistence.repositories.sql_person_repository import (
+    SqlPersonRepository,
+)
+
 
 @pytest.mark.integration
 def test_create_and_get_people_list(integration_client, create_person_payload):
@@ -56,4 +62,78 @@ def test_delete_person(integration_client, create_person_payload):
 @pytest.mark.integration
 def test_delete_person_not_found(integration_client):
     response = integration_client.delete("/people/999999")
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.integration
+def test_get_people_list_hides_other_users_people(
+    integration_client, db_session
+):
+    other_user = UserModel(
+        username="other-owner",
+        email="other-owner@example.com",
+        hashed_password="other-owner-hash",
+    )
+    db_session.add(other_user)
+    db_session.flush()
+    repo = SqlPersonRepository(db_session)
+    hidden = repo.create(
+        PersonBase(
+            name="Hidden Person",
+            description="Should not be listed",
+            user_id=other_user.id,
+        )
+    )
+
+    list_response = integration_client.get("/people")
+    assert list_response.status_code == HTTPStatus.OK
+    ids = [item["id"] for item in list_response.json()["items"]]
+    assert hidden.id not in ids
+
+
+@pytest.mark.integration
+def test_get_person_by_id_returns_not_found_for_non_owner(
+    integration_client, db_session
+):
+    other_user = UserModel(
+        username="other-owner-2",
+        email="other-owner-2@example.com",
+        hashed_password="other-owner-hash-2",
+    )
+    db_session.add(other_user)
+    db_session.flush()
+    repo = SqlPersonRepository(db_session)
+    hidden = repo.create(
+        PersonBase(
+            name="Hidden Person 2",
+            description="Should not be readable",
+            user_id=other_user.id,
+        )
+    )
+
+    response = integration_client.get(f"/people/{hidden.id}")
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.integration
+def test_delete_person_returns_not_found_for_non_owner(
+    integration_client, db_session
+):
+    other_user = UserModel(
+        username="other-owner-3",
+        email="other-owner-3@example.com",
+        hashed_password="other-owner-hash-3",
+    )
+    db_session.add(other_user)
+    db_session.flush()
+    repo = SqlPersonRepository(db_session)
+    hidden = repo.create(
+        PersonBase(
+            name="Hidden Person 3",
+            description="Should not be deletable",
+            user_id=other_user.id,
+        )
+    )
+
+    response = integration_client.delete(f"/people/{hidden.id}")
     assert response.status_code == HTTPStatus.NOT_FOUND

@@ -51,11 +51,11 @@ def test_create_person_with_bad_data_returns_unprocessable_entity(
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_create_person_delegates_to_repository(
-    client, mock_person_repository, create_person_payload
+def test_create_person_delegates_to_service(
+    client, mock_person_service, create_person_payload
 ):
     client.post("/people", json=create_person_payload)
-    mock_person_repository.create.assert_called_once_with(
+    mock_person_service.create.assert_called_once_with(
         PersonBase(
             name=create_person_payload["name"],
             description=create_person_payload["description"],
@@ -64,10 +64,10 @@ def test_create_person_delegates_to_repository(
     )
 
 
-def test_create_person_returns_person_from_repository(
-    client, mock_person_repository, person
+def test_create_person_returns_person_from_service(
+    client, mock_person_service, person
 ):
-    mock_person_repository.create.return_value = person
+    mock_person_service.create.return_value = person
     response = client.post(
         "/people",
         json={"name": person.name, "description": person.description},
@@ -86,24 +86,22 @@ def test_create_person_returns_person_from_repository(
 # ---------------------------------------------------------------------------
 
 
-def test_get_people_returns_ok(client, mock_person_repository):
-    mock_person_repository.get_many.return_value = _EMPTY
+def test_get_people_returns_ok(client, mock_person_service):
+    mock_person_service.get_many.return_value = _EMPTY
     response = client.get("/people")
     assert response.status_code == HTTPStatus.OK
 
 
 def test_get_people_response_contains_total_and_items(
-    client, mock_person_repository
+    client, mock_person_service
 ):
-    mock_person_repository.get_many.return_value = _EMPTY
+    mock_person_service.get_many.return_value = _EMPTY
     body = client.get("/people").json()
     assert "total" in body
     assert "items" in body
 
 
-def test_get_people_returns_items_from_repository(
-    client, mock_person_repository
-):
+def test_get_people_returns_items_from_service(client, mock_person_service):
     people = [
         Person(
             id=1,
@@ -118,7 +116,7 @@ def test_get_people_returns_items_from_repository(
             user_id=1,
         ),
     ]
-    mock_person_repository.get_many.return_value = _paginated(*people)
+    mock_person_service.get_many.return_value = _paginated(*people)
     body = client.get("/people").json()
     assert body["total"] == 2
     assert len(body["items"]) == 2
@@ -139,35 +137,41 @@ def test_get_people_returns_items_from_repository(
 # ---------------------------------------------------------------------------
 
 
-def test_get_people_delegates_default_pagination_to_repository(
-    client, mock_person_repository
+def test_get_people_delegates_default_pagination_to_service(
+    client, mock_person_service
 ):
-    mock_person_repository.get_many.return_value = _EMPTY
+    mock_person_service.get_many.return_value = _EMPTY
     client.get("/people")
-    mock_person_repository.get_many.assert_called_once_with(
+    mock_person_service.get_many.assert_called_once_with(
         pagination=PaginationQueryParams(offset=0, limit=10),
-        filters=FilterPeopleQueryParams(name=None, description=None),
+        filters=FilterPeopleQueryParams(
+            name=None, description=None, user_id=1
+        ),
     )
 
 
-def test_get_people_delegates_custom_pagination_to_repository(
-    client, mock_person_repository
+def test_get_people_delegates_custom_pagination_to_service(
+    client, mock_person_service
 ):
-    mock_person_repository.get_many.return_value = _EMPTY
+    mock_person_service.get_many.return_value = _EMPTY
     client.get("/people", params={"offset": 20, "limit": 5})
-    mock_person_repository.get_many.assert_called_once_with(
+    mock_person_service.get_many.assert_called_once_with(
         pagination=PaginationQueryParams(offset=20, limit=5),
-        filters=FilterPeopleQueryParams(name=None, description=None),
+        filters=FilterPeopleQueryParams(
+            name=None, description=None, user_id=1
+        ),
     )
 
 
-def test_get_people_accepts_max_limit(client, mock_person_repository):
-    mock_person_repository.get_many.return_value = _EMPTY
+def test_get_people_accepts_max_limit(client, mock_person_service):
+    mock_person_service.get_many.return_value = _EMPTY
     response = client.get("/people", params={"limit": 100})
     assert response.status_code == HTTPStatus.OK
-    mock_person_repository.get_many.assert_called_once_with(
+    mock_person_service.get_many.assert_called_once_with(
         pagination=PaginationQueryParams(offset=0, limit=100),
-        filters=FilterPeopleQueryParams(name=None, description=None),
+        filters=FilterPeopleQueryParams(
+            name=None, description=None, user_id=1
+        ),
     )
 
 
@@ -185,9 +189,9 @@ def test_get_people_accepts_max_limit(client, mock_person_repository):
     ],
 )
 def test_get_people_with_invalid_pagination_returns_unprocessable_entity(
-    client, mock_person_repository, bad_params
+    client, mock_person_service, bad_params
 ):
-    mock_person_repository.get_many.return_value = _EMPTY
+    mock_person_service.get_many.return_value = _EMPTY
     response = client.get("/people", params=bad_params)
     assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
@@ -197,41 +201,43 @@ def test_get_people_with_invalid_pagination_returns_unprocessable_entity(
 # ---------------------------------------------------------------------------
 
 
-def test_get_people_delegates_name_filter_to_repository(
-    client, mock_person_repository
+def test_get_people_delegates_name_filter_to_service(
+    client, mock_person_service
 ):
-    mock_person_repository.get_many.return_value = _EMPTY
+    mock_person_service.get_many.return_value = _EMPTY
     client.get("/people", params={"name": "Ada"})
-    mock_person_repository.get_many.assert_called_once_with(
-        pagination=PaginationQueryParams(offset=0, limit=10),
-        filters=FilterPeopleQueryParams(name="Ada", description=None),
-    )
-
-
-def test_get_people_delegates_description_filter_to_repository(
-    client, mock_person_repository
-):
-    mock_person_repository.get_many.return_value = _EMPTY
-    client.get("/people", params={"description": "mathematician"})
-    mock_person_repository.get_many.assert_called_once_with(
+    mock_person_service.get_many.assert_called_once_with(
         pagination=PaginationQueryParams(offset=0, limit=10),
         filters=FilterPeopleQueryParams(
-            name=None, description="mathematician"
+            name="Ada", description=None, user_id=1
         ),
     )
 
 
-def test_get_people_delegates_combined_filters_to_repository(
-    client, mock_person_repository
+def test_get_people_delegates_description_filter_to_service(
+    client, mock_person_service
 ):
-    mock_person_repository.get_many.return_value = _EMPTY
+    mock_person_service.get_many.return_value = _EMPTY
+    client.get("/people", params={"description": "mathematician"})
+    mock_person_service.get_many.assert_called_once_with(
+        pagination=PaginationQueryParams(offset=0, limit=10),
+        filters=FilterPeopleQueryParams(
+            name=None, description="mathematician", user_id=1
+        ),
+    )
+
+
+def test_get_people_delegates_combined_filters_to_service(
+    client, mock_person_service
+):
+    mock_person_service.get_many.return_value = _EMPTY
     client.get(
         "/people", params={"name": "Ada", "description": "mathematician"}
     )
-    mock_person_repository.get_many.assert_called_once_with(
+    mock_person_service.get_many.assert_called_once_with(
         pagination=PaginationQueryParams(offset=0, limit=10),
         filters=FilterPeopleQueryParams(
-            name="Ada", description="mathematician"
+            name="Ada", description="mathematician", user_id=1
         ),
     )
 
@@ -241,16 +247,16 @@ def test_get_people_delegates_combined_filters_to_repository(
 # ---------------------------------------------------------------------------
 
 
-def test_get_person_returns_ok(client, mock_person_repository, person):
-    mock_person_repository.get_by_id.return_value = person
+def test_get_person_returns_ok(client, mock_person_service, person):
+    mock_person_service.get_by_id.return_value = person
     response = client.get(f"/people/{person.id}")
     assert response.status_code == HTTPStatus.OK
 
 
-def test_get_person_returns_person_from_repository(
-    client, mock_person_repository, person
+def test_get_person_returns_person_from_service(
+    client, mock_person_service, person
 ):
-    mock_person_repository.get_by_id.return_value = person
+    mock_person_service.get_by_id.return_value = person
     body = client.get(f"/people/{person.id}").json()
     assert body == {
         "id": person.id,
@@ -259,16 +265,17 @@ def test_get_person_returns_person_from_repository(
     }
 
 
-def test_get_person_delegates_to_repository(
-    client, mock_person_repository, person
-):
-    mock_person_repository.get_by_id.return_value = person
+def test_get_person_delegates_to_service(client, mock_person_service, person):
+    mock_person_service.get_by_id.return_value = person
     client.get(f"/people/{person.id}")
-    mock_person_repository.get_by_id.assert_called_once_with(person.id)
+    mock_person_service.get_by_id.assert_called_once_with(
+        user_id=1,
+        person_id=person.id,
+    )
 
 
-def test_get_person_not_found_returns_404(client, mock_person_repository):
-    mock_person_repository.get_by_id.side_effect = EntityNotFoundError(
+def test_get_person_not_found_returns_404(client, mock_person_service):
+    mock_person_service.get_by_id.side_effect = EntityNotFoundError(
         "Person", 999
     )
     response = client.get("/people/999")
@@ -281,32 +288,29 @@ def test_get_person_not_found_returns_404(client, mock_person_repository):
 # ---------------------------------------------------------------------------
 
 
-def test_delete_person_returns_no_content(
-    client, mock_person_repository, person
-):
+def test_delete_person_returns_no_content(client, person):
     response = client.delete(f"/people/{person.id}")
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
 def test_delete_person_delegates_to_repository(
-    client, mock_person_repository, person
+    client, mock_person_service, person
 ):
     client.delete(f"/people/{person.id}")
-    mock_person_repository.delete.assert_called_once_with(person.id)
-
-
-def test_delete_person_not_found_returns_404(client, mock_person_repository):
-    mock_person_repository.delete.side_effect = EntityNotFoundError(
-        "Person", 999
+    mock_person_service.delete.assert_called_once_with(
+        user_id=1,
+        person_id=person.id,
     )
+
+
+def test_delete_person_not_found_returns_404(client, mock_person_service):
+    mock_person_service.delete.side_effect = EntityNotFoundError("Person", 999)
     response = client.delete("/people/999")
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert "Person with id 999 was not found" in response.json()["detail"]
 
 
-def test_delete_person_returns_empty_body(
-    client, mock_person_repository, person
-):
+def test_delete_person_returns_empty_body(client, person):
     response = client.delete(f"/people/{person.id}")
     assert response.content == b""
 
