@@ -1,14 +1,17 @@
+import { clearTokens, getTokens, setTokens } from '@/lib/auth/token-store'
 import type { ApiError } from './error'
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | undefined>
 }
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+
 class ApiClient {
   private baseURL: string
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL
+  constructor(apiBaseURL: string) {
+    this.baseURL = apiBaseURL
   }
 
   private buildURL(
@@ -26,6 +29,12 @@ class ApiClient {
     }
 
     return url.toString()
+  }
+
+  private authHeaders(): Record<string, string> {
+    const tokens = getTokens()
+    if (!tokens) return {}
+    return { Authorization: `Bearer ${tokens.accessToken}` }
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
@@ -75,17 +84,60 @@ class ApiClient {
     }
   }
 
-  async get<T>(path: string, options?: RequestOptions): Promise<T> {
-    const url = this.buildURL(path, options?.params)
+  private async fetchWithAuth(
+    url: string,
+    init: RequestInit,
+  ): Promise<Response> {
     const response = await fetch(url, {
-      ...options,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      ...init,
+      headers: { ...this.authHeaders(), ...init.headers },
     })
 
+    if (response.status !== 401) {
+      return response
+    }
+
+    // Attempt silent token refresh
+    const tokens = getTokens()
+    if (!tokens) {
+      window.dispatchEvent(new Event('auth:logout'))
+      return response
+    }
+
+    try {
+      const refreshResponse = await fetch(`${this.baseURL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: tokens.refreshToken }),
+      })
+
+      if (!refreshResponse.ok) throw new Error('Refresh failed')
+
+      const data = await refreshResponse.json()
+      setTokens({
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token,
+      })
+
+      // Replay the original request with the new access token
+      return fetch(url, {
+        ...init,
+        headers: { ...this.authHeaders(), ...init.headers },
+      })
+    } catch {
+      clearTokens()
+      window.dispatchEvent(new Event('auth:logout'))
+      return response
+    }
+  }
+
+  async get<T>(path: string, options?: RequestOptions): Promise<T> {
+    const url = this.buildURL(path, options?.params)
+    const response = await this.fetchWithAuth(url, {
+      ...options,
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
+    })
     return this.handleResponse<T>(response)
   }
 
@@ -95,16 +147,12 @@ class ApiClient {
     options?: RequestOptions,
   ): Promise<T> {
     const url = this.buildURL(path, options?.params)
-    const response = await fetch(url, {
+    const response = await this.fetchWithAuth(url, {
       ...options,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
       body: body ? JSON.stringify(body) : undefined,
     })
-
     return this.handleResponse<T>(response)
   }
 
@@ -114,34 +162,24 @@ class ApiClient {
     options?: RequestOptions,
   ): Promise<T> {
     const url = this.buildURL(path, options?.params)
-    const response = await fetch(url, {
+    const response = await this.fetchWithAuth(url, {
       ...options,
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
       body: body ? JSON.stringify(body) : undefined,
     })
-
     return this.handleResponse<T>(response)
   }
 
   async delete<T>(path: string, options?: RequestOptions): Promise<T> {
     const url = this.buildURL(path, options?.params)
-    const response = await fetch(url, {
+    const response = await this.fetchWithAuth(url, {
       ...options,
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: { 'Content-Type': 'application/json', ...options?.headers },
     })
-
     return this.handleResponse<T>(response)
   }
 }
 
-// Create singleton instance
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 export const apiClient = new ApiClient(baseURL)
