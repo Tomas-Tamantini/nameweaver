@@ -7,6 +7,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    SortPeopleQueryParams,
     UpdatePersonData,
 )
 from backend.domain.repositories.person_repository import PersonRepository
@@ -24,10 +25,12 @@ class PersonService:
         *,
         pagination: PaginationQueryParams,
         filters: FilterPeopleQueryParams,
+        sort: SortPeopleQueryParams,
     ) -> PaginatedResponse[Person]:
         return self._person_repo.get_many(
             pagination=pagination,
             filters=filters,
+            sort=sort,
         )
 
     def get_by_id(self, *, user_id: int, person_id: int) -> Person:

@@ -8,6 +8,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    SortPeopleQueryParams,
     UpdatePersonData,
 )
 
@@ -25,4 +26,5 @@ class PersonRepository(Protocol):
         self,
         pagination: PaginationQueryParams,
         filters: FilterPeopleQueryParams,
+        sort: SortPeopleQueryParams,
     ) -> PaginatedResponse[Person]: ...

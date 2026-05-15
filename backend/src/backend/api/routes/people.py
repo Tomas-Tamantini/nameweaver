@@ -39,6 +39,7 @@ def get_people(
     result = service.get_many(
         pagination=query_params.pagination(),
         filters=query_params.filters(user_id=user_id),
+        sort=query_params.sort(),
     )
     return PaginatedResponse(
         total=result.total,

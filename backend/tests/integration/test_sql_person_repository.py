@@ -2,7 +2,13 @@ import pytest
 
 from backend.domain.exceptions import EntityNotFoundError
 from backend.domain.models.pagination import PaginationQueryParams
-from backend.domain.models.person import FilterPeopleQueryParams, PersonBase
+from backend.domain.models.person import (
+    FilterPeopleQueryParams,
+    PersonBase,
+    PersonSortField,
+    SortOrder,
+    SortPeopleQueryParams,
+)
 from backend.infra.persistence.orm.user import UserModel
 from backend.infra.persistence.repositories.sql_person_repository import (
     SqlPersonRepository,
@@ -62,6 +68,7 @@ def test_get_many_empty_table_returns_zero_total(db_session):
     result = repo.get_many(
         PaginationQueryParams(),
         FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
+        SortPeopleQueryParams(),
     )
     assert result.total == 0
     assert result.items == []
@@ -76,6 +83,7 @@ def test_get_many_returns_all_created_people(db_session):
     result = repo.get_many(
         PaginationQueryParams(),
         FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
+        SortPeopleQueryParams(),
     )
     assert result.total == 2
     assert len(result.items) == 2
@@ -99,6 +107,7 @@ def test_get_many_without_user_id_returns_people_from_all_users(db_session):
     result = repo.get_many(
         PaginationQueryParams(),
         FilterPeopleQueryParams(name=None, description=None, user_id=None),
+        SortPeopleQueryParams(),
     )
 
     assert result.total == 2
@@ -127,6 +136,7 @@ def test_get_many_with_user_id_filters_to_single_user(db_session):
             description=None,
             user_id=user_1.id,
         ),
+        SortPeopleQueryParams(),
     )
 
     assert result.total == 1
@@ -142,6 +152,7 @@ def test_get_many_pagination_offset_and_limit(db_session):
     result = repo.get_many(
         PaginationQueryParams(offset=2, limit=2),
         FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
+        SortPeopleQueryParams(),
     )
     assert result.total == 5
     assert len(result.items) == 2
@@ -156,6 +167,7 @@ def test_get_many_limit_exceeding_total_returns_remaining(db_session):
     result = repo.get_many(
         PaginationQueryParams(offset=0, limit=10),
         FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
+        SortPeopleQueryParams(),
     )
     assert result.total == 1
     assert len(result.items) == 1
@@ -171,6 +183,7 @@ def test_get_many_filter_by_name_case_insensitive(db_session):
     result = repo.get_many(
         PaginationQueryParams(),
         FilterPeopleQueryParams(name="al", description=None, user_id=user.id),
+        SortPeopleQueryParams(),
     )
     assert result.total == 1
     assert result.items[0].name == "Alan Turing"
@@ -197,6 +210,7 @@ def test_get_many_filter_by_description_case_insensitive(db_session):
         FilterPeopleQueryParams(
             name=None, description="english", user_id=user.id
         ),
+        SortPeopleQueryParams(),
     )
     assert result.total == 1
     assert result.items[0].name == "Ada"
@@ -229,6 +243,7 @@ def test_get_many_filter_by_name_and_description(db_session):
         FilterPeopleQueryParams(
             name="al", description="computer scientist", user_id=user.id
         ),
+        SortPeopleQueryParams(),
     )
     assert result.total == 1
     assert result.items[0].name == "Alan"
@@ -246,6 +261,7 @@ def test_get_many_filters_with_pagination(db_session):
         FilterPeopleQueryParams(
             name="alice", description=None, user_id=user.id
         ),
+        SortPeopleQueryParams(),
     )
     assert result.total == 5
     assert len(result.items) == 2
@@ -296,3 +312,48 @@ def test_delete_raises_not_found_for_missing_id(db_session):
     repo = _make_repo(db_session)
     with pytest.raises(EntityNotFoundError, match="Person with id 999"):
         repo.delete(999)
+
+
+# ---------------------------------------------------------------------------
+# get_many — sorting
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.integration
+def test_get_many_sort_by_name_asc(db_session):
+
+    repo = _make_repo(db_session)
+    user = _create_user(db_session)
+    _create_person(repo, user_id=user.id, name="Zara")
+    _create_person(repo, user_id=user.id, name="Ada")
+    _create_person(repo, user_id=user.id, name="Marie")
+
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
+        SortPeopleQueryParams(
+            sort_by=PersonSortField.NAME, sort_order=SortOrder.ASC
+        ),
+    )
+
+    assert [p.name for p in result.items] == ["Ada", "Marie", "Zara"]
+
+
+@pytest.mark.integration
+def test_get_many_sort_by_name_desc(db_session):
+
+    repo = _make_repo(db_session)
+    user = _create_user(db_session)
+    _create_person(repo, user_id=user.id, name="Zara")
+    _create_person(repo, user_id=user.id, name="Ada")
+    _create_person(repo, user_id=user.id, name="Marie")
+
+    result = repo.get_many(
+        PaginationQueryParams(),
+        FilterPeopleQueryParams(name=None, description=None, user_id=user.id),
+        SortPeopleQueryParams(
+            sort_by=PersonSortField.NAME, sort_order=SortOrder.DESC
+        ),
+    )
+
+    assert [p.name for p in result.items] == ["Zara", "Marie", "Ada"]

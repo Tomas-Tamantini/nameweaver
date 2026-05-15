@@ -10,6 +10,8 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    SortOrder,
+    SortPeopleQueryParams,
     UpdatePersonData,
 )
 from backend.domain.repositories.person_repository import PersonRepository
@@ -58,6 +60,7 @@ class SqlPersonRepository(PersonRepository):
         self,
         pagination: PaginationQueryParams,
         filters: FilterPeopleQueryParams,
+        sort: SortPeopleQueryParams,
     ) -> PaginatedResponse[Person]:
         query = select(PersonModel)
 
@@ -70,6 +73,14 @@ class SqlPersonRepository(PersonRepository):
             query = query.where(
                 PersonModel.description.icontains(filters.description)
             )
+
+        sort_col = getattr(PersonModel, sort.sort_by.value)
+        order_expr = (
+            sort_col.asc()
+            if sort.sort_order == SortOrder.ASC
+            else sort_col.desc()
+        )
+        query = query.order_by(order_expr)
 
         total = self._session.scalar(
             select(func.count()).select_from(query.subquery())

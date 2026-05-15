@@ -8,6 +8,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    SortPeopleQueryParams,
     UpdatePersonData,
 )
 from backend.domain.repositories.person_repository import PersonRepository
@@ -36,6 +37,7 @@ def test_create_builds_person_with_user_id_and_delegates():
 
 
 def test_get_many_delegates_with_user_id_scope():
+
     repo = MagicMock(spec=PersonRepository)
     service = PersonService(repo)
     pagination = PaginationQueryParams(offset=0, limit=10)
@@ -44,12 +46,14 @@ def test_get_many_delegates_with_user_id_scope():
         description=None,
         user_id=5,
     )
+    sort = SortPeopleQueryParams()
 
-    service.get_many(pagination=pagination, filters=filters)
+    service.get_many(pagination=pagination, filters=filters, sort=sort)
 
     repo.get_many.assert_called_once_with(
         pagination=pagination,
         filters=filters,
+        sort=sort,
     )
 
 

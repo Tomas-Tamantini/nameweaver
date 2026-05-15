@@ -4,7 +4,13 @@ from fastapi import Query
 from pydantic import BaseModel, Field, NonNegativeInt, PositiveInt
 
 from backend.domain.models.pagination import PaginationQueryParams
-from backend.domain.models.person import FilterPeopleQueryParams, Person
+from backend.domain.models.person import (
+    FilterPeopleQueryParams,
+    Person,
+    PersonSortField,
+    SortOrder,
+    SortPeopleQueryParams,
+)
 
 _EXAMPLE_NAME = "Ada Lovelace"
 _EXAMPLE_DESCRIPTION = "English mathematician and writer"
@@ -87,6 +93,14 @@ class GetPeopleQueryParams(BaseModel):
             examples=["mathematician"],
         ),
     ] = None
+    sort_by: Annotated[
+        PersonSortField,
+        Query(description="Field to sort by"),
+    ] = PersonSortField.ID
+    sort_order: Annotated[
+        SortOrder,
+        Query(description="Sort direction"),
+    ] = SortOrder.ASC
 
     def pagination(self) -> PaginationQueryParams:
         return PaginationQueryParams(limit=self.limit, offset=self.offset)
@@ -96,4 +110,10 @@ class GetPeopleQueryParams(BaseModel):
             name=self.name,
             description=self.description,
             user_id=user_id,
+        )
+
+    def sort(self) -> SortPeopleQueryParams:
+        return SortPeopleQueryParams(
+            sort_by=self.sort_by,
+            sort_order=self.sort_order,
         )

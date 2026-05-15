@@ -11,6 +11,9 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    PersonSortField,
+    SortOrder,
+    SortPeopleQueryParams,
     UpdatePersonData,
 )
 
@@ -148,6 +151,9 @@ def test_get_people_delegates_default_pagination_to_service(
         filters=FilterPeopleQueryParams(
             name=None, description=None, user_id=1
         ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.ID, sort_order=SortOrder.ASC
+        ),
     )
 
 
@@ -161,6 +167,9 @@ def test_get_people_delegates_custom_pagination_to_service(
         filters=FilterPeopleQueryParams(
             name=None, description=None, user_id=1
         ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.ID, sort_order=SortOrder.ASC
+        ),
     )
 
 
@@ -172,6 +181,9 @@ def test_get_people_accepts_max_limit(client, mock_person_service):
         pagination=PaginationQueryParams(offset=0, limit=100),
         filters=FilterPeopleQueryParams(
             name=None, description=None, user_id=1
+        ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.ID, sort_order=SortOrder.ASC
         ),
     )
 
@@ -212,6 +224,9 @@ def test_get_people_delegates_name_filter_to_service(
         filters=FilterPeopleQueryParams(
             name="Ada", description=None, user_id=1
         ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.ID, sort_order=SortOrder.ASC
+        ),
     )
 
 
@@ -224,6 +239,9 @@ def test_get_people_delegates_description_filter_to_service(
         pagination=PaginationQueryParams(offset=0, limit=10),
         filters=FilterPeopleQueryParams(
             name=None, description="mathematician", user_id=1
+        ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.ID, sort_order=SortOrder.ASC
         ),
     )
 
@@ -240,7 +258,40 @@ def test_get_people_delegates_combined_filters_to_service(
         filters=FilterPeopleQueryParams(
             name="Ada", description="mathematician", user_id=1
         ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.ID, sort_order=SortOrder.ASC
+        ),
     )
+
+
+def test_get_people_delegates_sort_params_to_service(
+    client, mock_person_service
+):
+    mock_person_service.get_many.return_value = _EMPTY
+    client.get("/people", params={"sort_by": "name", "sort_order": "desc"})
+    mock_person_service.get_many.assert_called_once_with(
+        pagination=PaginationQueryParams(offset=0, limit=10),
+        filters=FilterPeopleQueryParams(
+            name=None, description=None, user_id=1
+        ),
+        sort=SortPeopleQueryParams(
+            sort_by=PersonSortField.NAME, sort_order=SortOrder.DESC
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    "bad_params",
+    [
+        {"sort_by": "invalid_field"},
+        {"sort_order": "sideways"},
+    ],
+)
+def test_get_people_with_invalid_sort_returns_unprocessable_entity(
+    client, mock_person_service, bad_params
+):
+    response = client.get("/people", params=bad_params)
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 # ---------------------------------------------------------------------------
