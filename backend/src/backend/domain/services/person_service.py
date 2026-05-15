@@ -7,6 +7,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    UpdatePersonData,
 )
 from backend.domain.repositories.person_repository import PersonRepository
 
@@ -34,6 +35,12 @@ class PersonService:
         if person.user_id != user_id:
             raise EntityNotFoundError("Person", person_id)
         return person
+
+    def update(
+        self, *, user_id: int, person_id: int, data: UpdatePersonData
+    ) -> Person:
+        _ = self.get_by_id(user_id=user_id, person_id=person_id)
+        return self._person_repo.update(person_id=person_id, data=data)
 
     def delete(self, *, user_id: int, person_id: int) -> None:
         _ = self.get_by_id(user_id=user_id, person_id=person_id)

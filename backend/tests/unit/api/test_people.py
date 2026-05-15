@@ -11,6 +11,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    UpdatePersonData,
 )
 
 # ---------------------------------------------------------------------------
@@ -316,8 +317,68 @@ def test_delete_person_returns_empty_body(client, person):
 
 
 # ---------------------------------------------------------------------------
-# Authentication required
+# PATCH /people/{person_id}
 # ---------------------------------------------------------------------------
+
+
+def test_update_person_returns_ok(client, mock_person_service, person):
+    mock_person_service.update.return_value = person
+    response = client.patch(f"/people/{person.id}", json={"name": "New Name"})
+    assert response.status_code == HTTPStatus.OK
+
+
+def test_update_person_returns_updated_person_from_service(
+    client, mock_person_service, person
+):
+    updated = Person(
+        id=person.id,
+        name="New Name",
+        description=person.description,
+        user_id=person.user_id,
+    )
+    mock_person_service.update.return_value = updated
+    response = client.patch(f"/people/{person.id}", json={"name": "New Name"})
+    body = response.json()
+    assert body["name"] == "New Name"
+    assert body["id"] == person.id
+
+
+def test_update_person_delegates_to_service(
+    client, mock_person_service, person
+):
+
+    mock_person_service.update.return_value = person
+    client.patch(f"/people/{person.id}", json={"name": "Changed"})
+    mock_person_service.update.assert_called_once_with(
+        user_id=1,
+        person_id=person.id,
+        data=UpdatePersonData(name="Changed", description=None),
+    )
+
+
+def test_update_person_not_found_returns_404(
+    client, mock_person_service, person
+):
+    mock_person_service.update.side_effect = EntityNotFoundError(
+        "Person", person.id
+    )
+    response = client.patch(f"/people/{person.id}", json={"name": "New"})
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.parametrize(
+    "bad_payload",
+    [
+        {"name": ""},
+        {"description": ""},
+        {"name": "", "description": ""},
+    ],
+)
+def test_update_person_with_empty_fields_returns_unprocessable_entity(
+    client, bad_payload
+):
+    response = client.patch("/people/1", json=bad_payload)
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.parametrize(
@@ -326,6 +387,7 @@ def test_delete_person_returns_empty_body(client, person):
         ("POST", "/people"),
         ("GET", "/people"),
         ("GET", "/people/1"),
+        ("PATCH", "/people/1"),
         ("DELETE", "/people/1"),
     ],
 )

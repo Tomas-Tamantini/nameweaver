@@ -8,6 +8,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    UpdatePersonData,
 )
 from backend.domain.repositories.person_repository import PersonRepository
 from backend.domain.services.person_service import PersonService
@@ -91,3 +92,50 @@ def test_delete_raises_not_found_for_non_owner():
         service.delete(user_id=1, person_id=3)
 
     repo.delete.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# update
+# ---------------------------------------------------------------------------
+
+
+def test_update_delegates_to_repo():
+
+    repo = MagicMock(spec=PersonRepository)
+    repo.get_by_id.return_value = _person(person_id=1, user_id=1)
+    repo.update.return_value = _person(person_id=1, user_id=1)
+    service = PersonService(repo)
+    data = UpdatePersonData(name="New", description=None)
+
+    service.update(user_id=1, person_id=1, data=data)
+
+    repo.update.assert_called_once_with(person_id=1, data=data)
+
+
+def test_update_raises_not_found_for_non_owner():
+
+    repo = MagicMock(spec=PersonRepository)
+    repo.get_by_id.return_value = _person(person_id=1, user_id=2)
+    service = PersonService(repo)
+    data = UpdatePersonData(name="New", description=None)
+
+    with pytest.raises(EntityNotFoundError, match="Person with id 1"):
+        service.update(user_id=1, person_id=1, data=data)
+
+    repo.update.assert_not_called()
+
+
+def test_update_returns_updated_person():
+
+    repo = MagicMock(spec=PersonRepository)
+    repo.get_by_id.return_value = _person(person_id=1, user_id=1)
+    updated = Person(
+        id=1, name="Updated", description="A test person", user_id=1
+    )
+    repo.update.return_value = updated
+    service = PersonService(repo)
+    data = UpdatePersonData(name="Updated", description=None)
+
+    result = service.update(user_id=1, person_id=1, data=data)
+
+    assert result.name == "Updated"

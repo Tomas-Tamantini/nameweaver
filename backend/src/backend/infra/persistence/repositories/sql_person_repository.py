@@ -10,6 +10,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    UpdatePersonData,
 )
 from backend.domain.repositories.person_repository import PersonRepository
 from backend.infra.persistence.orm.person import PersonModel
@@ -33,6 +34,17 @@ class SqlPersonRepository(PersonRepository):
         model = self._session.get(PersonModel, person_id)
         if model is None:
             raise EntityNotFoundError("Person", person_id)
+        return model.to_domain()
+
+    def update(self, person_id: int, data: UpdatePersonData) -> Person:
+        model = self._session.get(PersonModel, person_id)
+        if model is None:
+            raise EntityNotFoundError("Person", person_id)
+        if data.name is not None:
+            model.name = data.name
+        if data.description is not None:
+            model.description = data.description
+        self._session.flush()
         return model.to_domain()
 
     def delete(self, person_id: int) -> None:

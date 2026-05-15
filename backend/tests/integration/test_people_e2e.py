@@ -137,3 +137,53 @@ def test_delete_person_returns_not_found_for_non_owner(
 
     response = integration_client.delete(f"/people/{hidden.id}")
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.integration
+def test_update_person(integration_client, create_person_payload):
+    created = integration_client.post(
+        "/people", json=create_person_payload
+    ).json()
+
+    response = integration_client.patch(
+        f"/people/{created['id']}", json={"name": "Updated Name"}
+    )
+    assert response.status_code == HTTPStatus.OK
+    body = response.json()
+    assert body["name"] == "Updated Name"
+    assert body["description"] == create_person_payload["description"]
+    assert body["id"] == created["id"]
+
+
+@pytest.mark.integration
+def test_update_person_not_found(integration_client):
+    response = integration_client.patch(
+        "/people/999999", json={"name": "Ghost"}
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+@pytest.mark.integration
+def test_update_person_returns_not_found_for_non_owner(
+    integration_client, db_session
+):
+    other_user = UserModel(
+        username="other-owner-4",
+        email="other-owner-4@example.com",
+        hashed_password="other-owner-hash-4",
+    )
+    db_session.add(other_user)
+    db_session.flush()
+    repo = SqlPersonRepository(db_session)
+    hidden = repo.create(
+        PersonBase(
+            name="Hidden Person 4",
+            description="Should not be editable",
+            user_id=other_user.id,
+        )
+    )
+
+    response = integration_client.patch(
+        f"/people/{hidden.id}", json={"name": "Hacked"}
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND

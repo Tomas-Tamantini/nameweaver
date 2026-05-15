@@ -14,6 +14,12 @@ class Person(PersonBase):
 
 
 @dataclass(frozen=True)
+class UpdatePersonData:
+    name: str | None
+    description: str | None
+
+
+@dataclass(frozen=True)
 class FilterPeopleQueryParams:
     name: str | None
     description: str | None

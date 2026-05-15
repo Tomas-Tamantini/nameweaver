@@ -8,6 +8,7 @@ from backend.domain.models.person import (
     FilterPeopleQueryParams,
     Person,
     PersonBase,
+    UpdatePersonData,
 )
 
 
@@ -15,6 +16,8 @@ class PersonRepository(Protocol):
     def create(self, person: PersonBase) -> Person: ...
 
     def get_by_id(self, person_id: int) -> Person: ...
+
+    def update(self, person_id: int, data: UpdatePersonData) -> Person: ...
 
     def delete(self, person_id: int) -> None: ...
 

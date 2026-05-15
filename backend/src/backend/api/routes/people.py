@@ -8,9 +8,10 @@ from backend.api.schemas.people import (
     CreatePersonRequest,
     GetPeopleQueryParams,
     PersonResponse,
+    UpdatePersonRequest,
 )
 from backend.domain.models.pagination import PaginatedResponse
-from backend.domain.models.person import PersonBase
+from backend.domain.models.person import PersonBase, UpdatePersonData
 
 people_router = APIRouter(prefix="/people", tags=["people"])
 
@@ -51,6 +52,21 @@ def get_person(
 ) -> PersonResponse:
     person = service.get_by_id(user_id=user_id, person_id=person_id)
     return PersonResponse.from_domain(person)
+
+
+@people_router.patch("/{person_id}")
+def update_person(
+    person_id: int,
+    body: UpdatePersonRequest,
+    service: T_PersonService,
+    user_id: T_CurrentUserId,
+) -> PersonResponse:
+    updated = service.update(
+        user_id=user_id,
+        person_id=person_id,
+        data=UpdatePersonData(name=body.name, description=body.description),
+    )
+    return PersonResponse.from_domain(updated)
 
 
 @people_router.delete("/{person_id}", status_code=HTTPStatus.NO_CONTENT)

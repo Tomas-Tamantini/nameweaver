@@ -24,6 +24,24 @@ class CreatePersonRequest(BaseModel):
     ]
 
 
+class UpdatePersonRequest(BaseModel):
+    name: (
+        Annotated[
+            str, Field(min_length=1, max_length=100, examples=[_EXAMPLE_NAME])
+        ]
+        | None
+    ) = None
+    description: (
+        Annotated[
+            str,
+            Field(
+                min_length=1, max_length=280, examples=[_EXAMPLE_DESCRIPTION]
+            ),
+        ]
+        | None
+    ) = None
+
+
 class PersonResponse(BaseModel):
     id: int
     name: Annotated[

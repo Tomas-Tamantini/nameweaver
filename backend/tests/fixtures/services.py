@@ -15,4 +15,5 @@ def mock_person_service(person) -> MagicMock:
         items=[person],
     )
     service.get_by_id.return_value = person
+    service.update.return_value = person
     return service
